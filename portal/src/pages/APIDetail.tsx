@@ -11,15 +11,15 @@ interface API {
   name: string;
   version: string;
   description: string;
-  oas_version: string;
-  oas_document: Record<string, unknown>;
-  base_path: string;
+  oasVersion: string;
+  oasDocument: Record<string, unknown>;
+  basePath: string;
   servers: Array<{ url: string; description?: string }>;
   endpoints: Array<{ path: string; method: string; summary?: string; tags?: string[] }>;
   tags: string[];
   status: string;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 type Tab = 'overview' | 'docs' | 'endpoints';
@@ -58,7 +58,7 @@ export default function APIDetailPage() {
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{api.title}</h1>
             <div className="flex items-center gap-3 mt-2">
-              <span className="badge-blue">{api.oas_version}</span>
+              <span className="badge-blue">{api.oasVersion}</span>
               <span className="text-gray-500 text-sm">v{api.version}</span>
               <span className={api.status === 'active' ? 'badge-green' : 'badge-yellow'}>{api.status}</span>
               <span className="text-gray-400 text-xs font-mono">{api.name}</span>
@@ -111,9 +111,9 @@ export default function APIDetailPage() {
       )}
 
       {/* Swagger Docs */}
-      {tab === 'docs' && api.oas_document && (
+      {tab === 'docs' && api.oasDocument && (
         <div className="card overflow-hidden">
-          <SwaggerUI spec={api.oas_document} />
+          <SwaggerUI spec={api.oasDocument} />
         </div>
       )}
 

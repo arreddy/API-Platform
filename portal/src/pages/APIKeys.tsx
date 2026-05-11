@@ -4,9 +4,9 @@ import { keysApi, proxiesApi } from '../api/client';
 import { format } from 'date-fns';
 
 interface ApiKey {
-  id: string; name: string; key_prefix: string; proxy_id?: string;
-  scopes: string[]; rate_limit: number; rate_limit_window: string;
-  status: string; last_used_at?: string; expires_at?: string; created_at: string;
+  id: string; name: string; keyPrefix: string; proxyId?: string;
+  scopes: string[]; rateLimit: number; rateLimitWindow: string;
+  status: string; lastUsedAt?: string; expiresAt?: string; createdAt: string;
   rawKey?: string;
 }
 
@@ -168,14 +168,14 @@ export default function APIKeysPage() {
             ) : keys.map((k) => (
               <tr key={k.id} className="hover:bg-gray-50">
                 <td className="px-4 py-3 font-medium">{k.name}</td>
-                <td className="px-4 py-3 font-mono text-xs text-gray-600">{k.key_prefix}…</td>
-                <td className="px-4 py-3 text-gray-500 text-xs">{proxies.find((p) => p.id === k.proxy_id)?.name || '—'}</td>
-                <td className="px-4 py-3 text-gray-500 text-xs">{k.rate_limit}/{k.rate_limit_window}</td>
+                <td className="px-4 py-3 font-mono text-xs text-gray-600">{k.keyPrefix}…</td>
+                <td className="px-4 py-3 text-gray-500 text-xs">{proxies.find((p) => p.id === k.proxyId)?.name || '—'}</td>
+                <td className="px-4 py-3 text-gray-500 text-xs">{k.rateLimit}/{k.rateLimitWindow}</td>
                 <td className="px-4 py-3">
                   <span className={k.status === 'active' ? 'badge-green' : 'badge-red'}>{k.status}</span>
                 </td>
-                <td className="px-4 py-3 text-gray-400 text-xs">{k.last_used_at ? format(new Date(k.last_used_at), 'MMM d HH:mm') : '—'}</td>
-                <td className="px-4 py-3 text-gray-400 text-xs">{k.expires_at ? format(new Date(k.expires_at), 'MMM d yyyy') : '∞'}</td>
+                <td className="px-4 py-3 text-gray-400 text-xs">{k.lastUsedAt ? format(new Date(k.lastUsedAt), 'MMM d HH:mm') : '—'}</td>
+                <td className="px-4 py-3 text-gray-400 text-xs">{k.expiresAt ? format(new Date(k.expiresAt), 'MMM d yyyy') : '∞'}</td>
                 <td className="px-4 py-3">
                   {k.status === 'active' && (
                     <button onClick={() => handleRevoke(k.id, k.name)} className="text-red-500 hover:underline text-xs">Revoke</button>

@@ -12,7 +12,7 @@ interface Summary {
   totals: { totalRequests: number; successRequests: number; errorRequests: number; avgLatency: number; p99Latency: number };
   timeSeries: Array<{ hour: string; requests: string; avg_latency: string; errors: string }>;
   statusDistribution: Array<{ status_class: number; count: string }>;
-  topProxies: Array<{ proxy_id: string; requests: string }>;
+  topProxies: Array<{ proxyId: string; requests: string }>;
 }
 
 interface Proxy { id: string; name: string }

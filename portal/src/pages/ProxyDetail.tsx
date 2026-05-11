@@ -5,13 +5,13 @@ import { proxiesApi } from '../api/client';
 import { format } from 'date-fns';
 
 interface Proxy {
-  id: string; name: string; description: string; target_url: string;
-  path_prefix: string; strip_prefix: boolean; version: number;
+  id: string; name: string; description: string; targetUrl: string;
+  pathPrefix: string; stripPrefix: boolean; version: number;
   policies: Record<string, unknown>; routes: unknown[]; headers: Record<string, string>;
-  status: string; created_at: string; updated_at: string;
+  status: string; createdAt: string; updatedAt: string;
 }
 
-interface Version { id: string; version: number; change_note: string; created_at: string }
+interface Version { id: string; version: number; changeNote: string; createdAt: string }
 
 export default function ProxyDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -66,7 +66,7 @@ export default function ProxyDetailPage() {
             <div className="flex gap-3 mt-2 items-center">
               <span className={proxy.status === 'active' ? 'badge-green' : 'badge-gray'}>{proxy.status}</span>
               <span className="text-gray-500 text-sm">v{proxy.version}</span>
-              <code className="text-xs bg-gray-100 px-2 py-0.5 rounded">{proxy.path_prefix} → {proxy.target_url}</code>
+              <code className="text-xs bg-gray-100 px-2 py-0.5 rounded">{proxy.pathPrefix} → {proxy.targetUrl}</code>
             </div>
           </div>
         </div>
@@ -94,11 +94,11 @@ export default function ProxyDetailPage() {
           <div className="card p-5 space-y-3">
             <div className="text-xs font-semibold text-gray-400 uppercase">General</div>
             {[
-              ['Target URL', proxy.target_url],
-              ['Path Prefix', proxy.path_prefix],
-              ['Strip Prefix', proxy.strip_prefix ? 'Yes' : 'No'],
+              ['Target URL', proxy.targetUrl],
+              ['Path Prefix', proxy.pathPrefix],
+              ['Strip Prefix', proxy.stripPrefix ? 'Yes' : 'No'],
               ['Version', `v${proxy.version}`],
-              ['Updated', format(new Date(proxy.updated_at), 'MMM d, yyyy HH:mm')],
+              ['Updated', format(new Date(proxy.updatedAt), 'MMM d, yyyy HH:mm')],
             ].map(([k, v]) => (
               <div key={k} className="flex justify-between text-sm">
                 <span className="text-gray-500">{k}</span>
@@ -172,8 +172,8 @@ export default function ProxyDetailPage() {
                     v{v.version}
                     {v.version === proxy.version && <span className="badge-blue ml-2">current</span>}
                   </td>
-                  <td className="px-4 py-3 text-gray-500">{v.change_note || '—'}</td>
-                  <td className="px-4 py-3 text-gray-400 text-xs">{format(new Date(v.created_at), 'MMM d, yyyy HH:mm')}</td>
+                  <td className="px-4 py-3 text-gray-500">{v.changeNote || '—'}</td>
+                  <td className="px-4 py-3 text-gray-400 text-xs">{format(new Date(v.createdAt), 'MMM d, yyyy HH:mm')}</td>
                   <td className="px-4 py-3">
                     {v.version !== proxy.version && (
                       <button onClick={() => handleRollback(v.version)} className="text-blue-600 hover:underline text-xs">Rollback</button>

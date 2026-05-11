@@ -11,10 +11,10 @@ interface API {
   title: string;
   version: string;
   description: string;
-  oas_version: string;
+  oasVersion: string;
   tags: string[];
   status: string;
-  created_at: string;
+  createdAt: string;
 }
 
 function StatusBadge({ status }: { status: string }) {
@@ -226,7 +226,7 @@ export default function APIsPage() {
                 </td>
                 <td className="px-4 py-3 text-gray-500 font-mono text-xs">{api.name}</td>
                 <td className="px-4 py-3 text-gray-600">{api.version}</td>
-                <td className="px-4 py-3"><span className="badge-blue">{api.oas_version}</span></td>
+                <td className="px-4 py-3"><span className="badge-blue">{api.oasVersion}</span></td>
                 <td className="px-4 py-3">
                   <div className="flex flex-wrap gap-1">
                     {(api.tags || []).slice(0, 3).map((t) => (
@@ -235,7 +235,7 @@ export default function APIsPage() {
                   </div>
                 </td>
                 <td className="px-4 py-3"><StatusBadge status={api.status} /></td>
-                <td className="px-4 py-3 text-gray-400 text-xs">{format(new Date(api.created_at), 'MMM d, yyyy')}</td>
+                <td className="px-4 py-3 text-gray-400 text-xs">{format(new Date(api.createdAt), 'MMM d, yyyy')}</td>
                 <td className="px-4 py-3">
                   <div className="flex gap-2">
                     <Link to={`/apis/${api.id}`} className="text-blue-600 hover:underline text-xs">View</Link>

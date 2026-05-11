@@ -8,12 +8,12 @@ interface Proxy {
   id: string;
   name: string;
   description: string;
-  target_url: string;
-  path_prefix: string;
+  targetUrl: string;
+  pathPrefix: string;
   version: number;
   status: string;
-  api_id?: string;
-  created_at: string;
+  apiId?: string;
+  createdAt: string;
 }
 
 interface ApiOption { id: string; title: string; name: string }
@@ -208,13 +208,13 @@ export default function ProxiesPage() {
                   <Link to={`/proxies/${p.id}`} className="text-blue-600 hover:underline">{p.name}</Link>
                   {p.description && <div className="text-xs text-gray-400 truncate max-w-xs">{p.description}</div>}
                 </td>
-                <td className="px-4 py-3 font-mono text-xs text-gray-600">{p.path_prefix}</td>
-                <td className="px-4 py-3 text-xs text-gray-500 truncate max-w-xs">{p.target_url}</td>
+                <td className="px-4 py-3 font-mono text-xs text-gray-600">{p.pathPrefix}</td>
+                <td className="px-4 py-3 text-xs text-gray-500 truncate max-w-xs">{p.targetUrl}</td>
                 <td className="px-4 py-3 text-gray-500">v{p.version}</td>
                 <td className="px-4 py-3">
                   <span className={p.status === 'active' ? 'badge-green' : 'badge-gray'}>{p.status}</span>
                 </td>
-                <td className="px-4 py-3 text-gray-400 text-xs">{format(new Date(p.created_at), 'MMM d, yyyy')}</td>
+                <td className="px-4 py-3 text-gray-400 text-xs">{format(new Date(p.createdAt), 'MMM d, yyyy')}</td>
                 <td className="px-4 py-3">
                   <div className="flex gap-2">
                     <Link to={`/proxies/${p.id}`} className="text-blue-600 hover:underline text-xs">Manage</Link>

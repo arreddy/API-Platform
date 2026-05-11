@@ -25,10 +25,17 @@ export default function LoginPage() {
     }
   };
 
-  // Dev bypass — auto-login without credentials
-  const devLogin = () => {
-    setAuth({ id: 'dev', email: 'dev@local', name: 'Dev User', role: 'admin' }, 'dev-token');
-    navigate('/dashboard');
+  const devLogin = async () => {
+    setLoading(true);
+    try {
+      const { data } = await authApi.login('admin@localhost', 'admin123');
+      setAuth(data.user, data.token);
+      navigate('/dashboard');
+    } catch {
+      toast.error('Dev login failed — run: register admin@localhost / admin123 first');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
