@@ -10,6 +10,8 @@ spring:
       # Routes are loaded dynamically from control plane — no static routes here
       default-filters:
         - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+        - DedupeResponseHeader=Content-Encoding
+        - RemoveResponseHeader=Transfer-Encoding
       globalcors:
         cors-configurations:
           '[/**]':
@@ -47,5 +49,6 @@ management:
 
 logging:
   level:
-    com.apiplatform: INFO
-    org.springframework.cloud.gateway: INFO
+    com.apiplatform: DEBUG
+    org.springframework.cloud.gateway: DEBUG
+    reactor.netty.http.client: DEBUG

@@ -1,13 +1,14 @@
 package com.apiplatform.controlplane.entity;
 
 import io.hypersistence.utils.hibernate.type.json.JsonType;
+import com.apiplatform.controlplane.converter.UuidStringConverter;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.time.OffsetDateTime;
 import java.util.Map;
+import java.util.UUID;
 
 @Entity
 @Table(name = "proxy_versions")
@@ -18,11 +19,11 @@ import java.util.Map;
 public class ProxyVersion {
 
     @Id
-    @UuidGenerator
-    @Column(columnDefinition = "uuid")
+    @Column(columnDefinition = "uuid", updatable = false, nullable = false)
     private String id;
 
-    @Column(name = "proxy_id", nullable = false)
+    @Convert(converter = UuidStringConverter.class)
+    @Column(name = "proxy_id", nullable = false, columnDefinition = "uuid")
     private String proxyId;
 
     @Column(nullable = false)
@@ -32,7 +33,8 @@ public class ProxyVersion {
     @Column(columnDefinition = "jsonb", nullable = false)
     private Map<String, Object> snapshot;
 
-    @Column(name = "changed_by")
+    @Convert(converter = UuidStringConverter.class)
+    @Column(name = "changed_by", columnDefinition = "uuid")
     private String changedBy;
 
     @Column(name = "change_note", columnDefinition = "text")
@@ -41,4 +43,9 @@ public class ProxyVersion {
     @Column(name = "created_at", nullable = false, updatable = false)
     @Builder.Default
     private OffsetDateTime createdAt = OffsetDateTime.now();
+
+    @PrePersist
+    void prePersist() {
+        if (this.id == null) this.id = UUID.randomUUID().toString();
+    }
 }

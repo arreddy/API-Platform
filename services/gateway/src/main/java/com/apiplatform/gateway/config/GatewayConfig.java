@@ -2,20 +2,20 @@ package com.apiplatform.gateway.config;
 
 import com.apiplatform.gateway.filter.ApiKeyAuthFilter;
 import com.apiplatform.gateway.filter.RateLimitFilter;
-import com.apiplatform.gateway.registry.ProxyConfig;
 import com.apiplatform.gateway.registry.ProxyRegistry;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cloud.gateway.filter.OrderedGatewayFilter;
 import org.springframework.cloud.gateway.route.Route;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.server.*;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.util.Map;
@@ -36,50 +36,49 @@ public class GatewayConfig {
      */
     @Bean
     public RouteLocator dynamicRouteLocator() {
-        return exchange -> {
-            String path = exchange.getRequest().getURI().getPath();
-            ProxyConfig proxy = proxyRegistry.match(path);
+        return () -> Flux.defer(() ->
+            Flux.fromIterable(proxyRegistry.getAll())
+                .map(proxy -> {
+                    // Pass only scheme://host to the route URI.
+                    // RouteToRequestUrlFilter (order 10000) takes the HOST from this URI
+                    // and the PATH from the exchange request — so our filter just needs to
+                    // rewrite the exchange path to include targetUrl's base path.
+                    URI target = URI.create(proxy.getTargetUrl());
+                    String hostOnlyUri = target.getScheme() + "://" + target.getHost()
+                            + (target.getPort() > 0 ? ":" + target.getPort() : "");
+                    String basePath = target.getRawPath() != null
+                            ? target.getRawPath().replaceAll("/$", "") : "";
 
-            if (proxy == null) {
-                return Flux.empty(); // no match → 404 handled downstream
-            }
-
-            exchange.getAttributes().put("proxy", proxy);
-
-            // Build the effective target URI
-            String targetPath = path;
-            if (proxy.isStripPrefix() && path.startsWith(proxy.getPathPrefix())) {
-                targetPath = path.substring(proxy.getPathPrefix().length());
-                if (targetPath.isEmpty()) targetPath = "/";
-            }
-
-            URI targetUri = URI.create(proxy.getTargetUrl() + targetPath);
-
-            Route route = Route.async()
-                    .id("dynamic-" + proxy.getId())
-                    .uri(proxy.getTargetUrl())
-                    .order(0)
-                    .asyncPredicate(ex -> reactor.core.publisher.Mono.just(
+                    return Route.async()
+                        .id("dynamic-" + proxy.getId())
+                        .uri(hostOnlyUri)
+                        .order(0)
+                        .asyncPredicate(ex -> Mono.just(
                             ex.getRequest().getURI().getPath().startsWith(proxy.getPathPrefix())))
-                    .filter((ex, chain) -> {
-                        // Inject custom headers
-                        ServerWebExchange mutated = ex.mutate()
+                        .filter(new OrderedGatewayFilter((ex, chain) -> {
+                            String path = ex.getRequest().getURI().getPath();
+                            String stripped = path;
+                            if (proxy.isStripPrefix() && path.startsWith(proxy.getPathPrefix())) {
+                                stripped = path.substring(proxy.getPathPrefix().length());
+                                if (stripped.isEmpty()) stripped = "/";
+                            }
+                            final String fullPath = basePath + stripped;
+                            ServerWebExchange mutated = ex.mutate()
                                 .request(r -> {
-                                    r.path(targetPath);
+                                    r.path(fullPath);
                                     if (proxy.getHeaders() != null) {
                                         proxy.getHeaders().forEach(r::header);
                                     }
                                     r.header("X-Forwarded-By", "api-gateway");
                                 })
                                 .build();
-                        // Chain: auth → rate limit → forward
-                        return apiKeyAuthFilter.filter(mutated, next ->
+                            mutated.getAttributes().put("proxy", proxy);
+                            return apiKeyAuthFilter.filter(mutated, next ->
                                 rateLimitFilter.filter(next, chain));
-                    })
-                    .build();
-
-            return Flux.just(route);
-        };
+                        }, 1))
+                        .build();
+                })
+        );
     }
 
     @Bean

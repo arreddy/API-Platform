@@ -60,7 +60,7 @@ public class ApiController {
     public ResponseEntity<ApiDto.RegisterResponse> register(
             @AuthenticationPrincipal ApiPrincipal principal,
             @RequestPart(value = "oas", required = false) MultipartFile oasFile,
-            @RequestParam(value = "oas", required = false) String oasText,
+            @RequestParam(required = false) String oasText,
             @RequestParam(value = "name", required = false) String nameOverride) throws IOException {
 
         String content = resolveContent(oasFile, oasText);
@@ -86,7 +86,7 @@ public class ApiController {
     @PostMapping(path = "/validate", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public Map<String, Object> validate(
             @RequestPart(value = "oas", required = false) MultipartFile oasFile,
-            @RequestParam(value = "oas", required = false) String oasText) throws IOException {
+            @RequestParam(required = false) String oasText) throws IOException {
         OasValidatorService.ParsedOas parsed = apiService.validate(resolveContent(oasFile, oasText));
         return Map.of("valid", true, "summary", Map.of(
                 "title", parsed.title(),

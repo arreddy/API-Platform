@@ -4,10 +4,10 @@ import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.time.OffsetDateTime;
 import java.util.Map;
+import java.util.UUID;
 
 @Entity
 @Table(name = "tenants")
@@ -18,8 +18,7 @@ import java.util.Map;
 public class Tenant {
 
     @Id
-    @UuidGenerator
-    @Column(columnDefinition = "uuid")
+    @Column(columnDefinition = "uuid", updatable = false, nullable = false)
     private String id;
 
     @Column(nullable = false)
@@ -44,6 +43,11 @@ public class Tenant {
     @Column(name = "updated_at", nullable = false)
     @Builder.Default
     private OffsetDateTime updatedAt = OffsetDateTime.now();
+
+    @PrePersist
+    void prePersist() {
+        if (this.id == null) this.id = UUID.randomUUID().toString();
+    }
 
     @PreUpdate
     void onUpdate() {

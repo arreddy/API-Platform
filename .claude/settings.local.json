@@ -5,7 +5,15 @@
       "mcp__Claude_in_Chrome__browser_batch",
       "mcp__Claude_in_Chrome__navigate",
       "mcp__Claude_in_Chrome__computer",
-      "mcp__Claude_in_Chrome__get_page_text"
+      "mcp__Claude_in_Chrome__get_page_text",
+      "Bash(mvn validate *)",
+      "Bash(mvn compile *)",
+      "Bash(java -version)",
+      "Bash(mvn -f /Users/adirangareddypateel/API-Platform/services/control-plane/pom.xml help:effective-pom -q)",
+      "Bash(mvn -f /Users/adirangareddypateel/API-Platform/services/control-plane/pom.xml dependency:resolve -Dartifact=org.projectlombok:lombok)",
+      "Bash(grep -v \"^\\\\[INFO\\\\] $\")",
+      "Bash(ls ~/.m2/repository/org/projectlombok/lombok/ 2>/dev/null | sort -V)",
+      "Read(//Users/adirangareddypateel/.m2/repository/org/projectlombok/lombok/**)"
     ]
   }
 }

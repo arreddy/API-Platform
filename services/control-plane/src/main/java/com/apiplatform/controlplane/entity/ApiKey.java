@@ -1,10 +1,11 @@
 package com.apiplatform.controlplane.entity;
 
+import com.apiplatform.controlplane.converter.UuidStringConverter;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "api_keys")
@@ -15,14 +16,15 @@ import java.time.OffsetDateTime;
 public class ApiKey {
 
     @Id
-    @UuidGenerator
-    @Column(columnDefinition = "uuid")
+    @Column(columnDefinition = "uuid", updatable = false, nullable = false)
     private String id;
 
-    @Column(name = "tenant_id", nullable = false)
+    @Convert(converter = UuidStringConverter.class)
+    @Column(name = "tenant_id", nullable = false, columnDefinition = "uuid")
     private String tenantId;
 
-    @Column(name = "proxy_id")
+    @Convert(converter = UuidStringConverter.class)
+    @Column(name = "proxy_id", columnDefinition = "uuid")
     private String proxyId;
 
     @Column(nullable = false)
@@ -56,10 +58,16 @@ public class ApiKey {
     @Column(name = "expires_at")
     private OffsetDateTime expiresAt;
 
-    @Column(name = "created_by")
+    @Convert(converter = UuidStringConverter.class)
+    @Column(name = "created_by", columnDefinition = "uuid")
     private String createdBy;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     @Builder.Default
     private OffsetDateTime createdAt = OffsetDateTime.now();
+
+    @PrePersist
+    void prePersist() {
+        if (this.id == null) this.id = UUID.randomUUID().toString();
+    }
 }

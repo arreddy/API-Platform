@@ -55,9 +55,11 @@ public class OasValidatorService {
         // Re-parse raw document for storage
         Map<String, Object> rawDoc = parseToMap(content);
 
-        String oasVersion = openAPI.getSpecVersion() != null
-                ? openAPI.getSpecVersion().name().replace("V", "").replace("_", ".").substring(0, 3)
-                : "3.0";
+        String oasVersion = "3.0";
+        if (openAPI.getSpecVersion() != null) {
+            String n = openAPI.getSpecVersion().name(); // "V30" or "V31"
+            oasVersion = n.charAt(1) + "." + n.substring(2);
+        }
 
         String title = openAPI.getInfo() != null ? openAPI.getInfo().getTitle() : "Untitled";
         String version = openAPI.getInfo() != null ? openAPI.getInfo().getVersion() : "1.0.0";

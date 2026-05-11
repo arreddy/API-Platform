@@ -1,7 +1,6 @@
 package com.apiplatform.gateway.registry;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.util.List;
@@ -12,22 +11,11 @@ import java.util.Map;
 public class ProxyConfig {
 
     private String id;
-
-    @JsonProperty("tenant_id")
     private String tenantId;
-
-    @JsonProperty("api_id")
     private String apiId;
-
     private String name;
-
-    @JsonProperty("target_url")
     private String targetUrl;
-
-    @JsonProperty("path_prefix")
     private String pathPrefix;
-
-    @JsonProperty("strip_prefix")
     private boolean stripPrefix = true;
 
     private int version;

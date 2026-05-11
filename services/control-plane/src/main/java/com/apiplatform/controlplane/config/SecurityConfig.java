@@ -39,6 +39,7 @@ public class SecurityConfig {
     private boolean devMode;
 
     private static final String DEFAULT_TENANT = "00000000-0000-0000-0000-000000000001";
+    private static final String DEFAULT_DEV_USER = "00000000-0000-0000-0000-000000000002";
 
     @Bean
     public BCryptPasswordEncoder bcryptPasswordEncoder() {
@@ -68,7 +69,7 @@ public class SecurityConfig {
                 var httpReq = (jakarta.servlet.http.HttpServletRequest) req;
                 if (SecurityContextHolder.getContext().getAuthentication() == null
                         && httpReq.getHeader("Authorization") == null) {
-                    ApiPrincipal principal = new ApiPrincipal("dev-user", DEFAULT_TENANT, "admin");
+                    ApiPrincipal principal = new ApiPrincipal(DEFAULT_DEV_USER, DEFAULT_TENANT, "admin");
                     var auth = new UsernamePasswordAuthenticationToken(
                             principal, null, List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
                     SecurityContextHolder.getContext().setAuthentication(auth);

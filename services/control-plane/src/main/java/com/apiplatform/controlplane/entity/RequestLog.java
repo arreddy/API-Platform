@@ -1,13 +1,14 @@
 package com.apiplatform.controlplane.entity;
 
 import io.hypersistence.utils.hibernate.type.json.JsonType;
+import com.apiplatform.controlplane.converter.UuidStringConverter;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.time.OffsetDateTime;
 import java.util.Map;
+import java.util.UUID;
 
 @Entity
 @Table(name = "request_logs")
@@ -18,17 +19,19 @@ import java.util.Map;
 public class RequestLog {
 
     @Id
-    @UuidGenerator
-    @Column(columnDefinition = "uuid")
+    @Column(columnDefinition = "uuid", updatable = false, nullable = false)
     private String id;
 
-    @Column(name = "tenant_id", nullable = false)
+    @Convert(converter = UuidStringConverter.class)
+    @Column(name = "tenant_id", nullable = false, columnDefinition = "uuid")
     private String tenantId;
 
-    @Column(name = "proxy_id")
+    @Convert(converter = UuidStringConverter.class)
+    @Column(name = "proxy_id", columnDefinition = "uuid")
     private String proxyId;
 
-    @Column(name = "api_key_id")
+    @Convert(converter = UuidStringConverter.class)
+    @Column(name = "api_key_id", columnDefinition = "uuid")
     private String apiKeyId;
 
     @Column(nullable = false, length = 10)
@@ -65,4 +68,9 @@ public class RequestLog {
     @Column(name = "created_at", nullable = false, updatable = false)
     @Builder.Default
     private OffsetDateTime createdAt = OffsetDateTime.now();
+
+    @PrePersist
+    void prePersist() {
+        if (this.id == null) this.id = UUID.randomUUID().toString();
+    }
 }

@@ -12,7 +12,7 @@ A production-ready, microservices-based API Management Platform supporting full 
                         │ REST /api/v1/*
 ┌───────────────────────▼─────────────────────────────────┐
 │                   Control Plane                          │
-│          Node.js + Express + TypeScript (port 3001)      │
+│          Spring Boot + Java (port 3001)                  │
 │  • API registration & OAS validation                     │
 │  • Proxy CRUD + version history                          │
 │  • API key management                                    │
@@ -21,7 +21,7 @@ A production-ready, microservices-based API Management Platform supporting full 
        │ PostgreSQL                   │ Internal REST
 ┌──────▼──────┐               ┌───────▼──────────────────┐
 │  PostgreSQL  │               │        Gateway            │
-│  (port 5432) │               │  Node.js + Express        │
+│  (port 5432) │               │  Spring Cloud Gateway     │
 └─────────────┘               │  (port 3000)              │
                                │  • Dynamic proxy routing  │
 ┌─────────────┐               │  • API key auth           │
@@ -31,7 +31,7 @@ A production-ready, microservices-based API Management Platform supporting full 
                                       │ HTTP proxy
 ┌─────────────────────────────────────▼──────────────────-┐
 │                  Mock Server (port 3002)                 │
-│         OAS-driven fake response generation              │
+│     Spring Boot — OAS-driven fake response generation    │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -39,7 +39,8 @@ A production-ready, microservices-based API Management Platform supporting full 
 
 ### Prerequisites
 - Docker & Docker Compose
-- Node.js 20+ (for local dev)
+- Java 21+ and Maven 3.9+ (for backend services)
+- Node.js 20+ (for Developer Portal only)
 
 ### 1. Clone and configure
 
@@ -66,19 +67,19 @@ Services start at:
 
 ```bash
 # Start just the infrastructure (DB + Redis)
-npm run dev:infra
+docker compose up postgres redis -d
 
-# Install all dependencies
-npm run install:all
+# Terminal 1 — Control Plane (Spring Boot) → :3001
+cd services/control-plane && mvn spring-boot:run
 
-# Run migrations
-npm run migrate
+# Terminal 2 — API Gateway (Spring Cloud Gateway) → :3000
+cd services/gateway && mvn spring-boot:run
 
-# Start services in separate terminals
-npm run dev:cp        # Control plane  → :3001
-npm run dev:gateway   # API Gateway    → :3000
-npm run dev:mock      # Mock server    → :3002
-npm run dev:portal    # Developer portal → :3003
+# Terminal 3 — Mock Server (Spring Boot) → :3002
+cd services/mock-server && mvn spring-boot:run
+
+# Terminal 4 — Developer Portal (Vite) → :3003
+cd portal && npm install && npm run dev
 ```
 
 ## API Reference
@@ -147,6 +148,49 @@ curl -X POST http://localhost:3001/api/v1/proxies \
       "auth": { "type": "api_key" }
     }
   }'
+```
+
+### Example: Update a proxy
+
+```bash
+# Update target URL, rate limit policy, and leave a change note (auto-versions)
+curl -X PUT http://localhost:3001/api/v1/proxies/<id> \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "petstore-proxy",
+    "targetUrl": "https://petstore3.swagger.io/api/v3",
+    "pathPrefix": "/petstore",
+    "stripPrefix": true,
+    "policies": {
+      "rateLimit": { "enabled": true, "requests": 200, "window": "1m" },
+      "auth": { "type": "api_key" }
+    },
+    "headers": { "X-Forwarded-Host": "api.example.com" },
+    "changeNote": "Increase rate limit to 200 req/min"
+  }'
+
+# Rollback to a previous version
+curl -X POST http://localhost:3001/api/v1/proxies/<id>/rollback/<version>
+```
+
+### Example: Get proxies
+
+```bash
+# List all proxies (dev mode — no auth header needed)
+curl http://localhost:3001/api/v1/proxies
+
+# Filter by status
+curl "http://localhost:3001/api/v1/proxies?status=active"
+
+# Get a specific proxy by ID
+curl http://localhost:3001/api/v1/proxies/<id>
+
+# List version history for a proxy
+curl http://localhost:3001/api/v1/proxies/<id>/versions
+
+# With JWT token (production / non-dev mode)
+curl http://localhost:3001/api/v1/proxies \
+  -H "Authorization: Bearer <your-jwt-token>"
 ```
 
 ### Example: Use the gateway

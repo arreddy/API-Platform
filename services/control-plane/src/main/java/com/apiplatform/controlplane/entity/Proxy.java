@@ -1,12 +1,13 @@
 package com.apiplatform.controlplane.entity;
 
 import io.hypersistence.utils.hibernate.type.json.JsonType;
+import com.apiplatform.controlplane.converter.UuidStringConverter;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.time.OffsetDateTime;
+import java.util.UUID;
 import java.util.List;
 import java.util.Map;
 
@@ -19,14 +20,15 @@ import java.util.Map;
 public class Proxy {
 
     @Id
-    @UuidGenerator
-    @Column(columnDefinition = "uuid")
+    @Column(columnDefinition = "uuid", updatable = false, nullable = false)
     private String id;
 
-    @Column(name = "tenant_id", nullable = false)
+    @Convert(converter = UuidStringConverter.class)
+    @Column(name = "tenant_id", nullable = false, columnDefinition = "uuid")
     private String tenantId;
 
-    @Column(name = "api_id")
+    @Convert(converter = UuidStringConverter.class)
+    @Column(name = "api_id", columnDefinition = "uuid")
     private String apiId;
 
     @Column(nullable = false)
@@ -68,7 +70,8 @@ public class Proxy {
     @Builder.Default
     private String status = "active";
 
-    @Column(name = "created_by")
+    @Convert(converter = UuidStringConverter.class)
+    @Column(name = "created_by", columnDefinition = "uuid")
     private String createdBy;
 
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -78,6 +81,11 @@ public class Proxy {
     @Column(name = "updated_at", nullable = false)
     @Builder.Default
     private OffsetDateTime updatedAt = OffsetDateTime.now();
+
+    @PrePersist
+    void prePersist() {
+        if (this.id == null) this.id = UUID.randomUUID().toString();
+    }
 
     @PreUpdate
     void onUpdate() {
