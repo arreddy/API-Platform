@@ -60,7 +60,7 @@ public class ProxyDto {
 
     public record UpdateRequest(
             String name, String description, String targetUrl,
-            String pathPrefix, Boolean stripPrefix,
+            String pathPrefix, Boolean stripPrefix, String apiId,
             Map<String, Object> policies,
             List<Map<String, Object>> routes,
             Map<String, String> headers,

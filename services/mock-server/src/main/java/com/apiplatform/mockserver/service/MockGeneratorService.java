@@ -26,7 +26,7 @@ public class MockGeneratorService {
             return new MockResponse(404, Map.of("error", "Cannot parse OAS document"), "application/json");
         }
 
-        PathItem pathItem = openAPI.getPaths() != null ? openAPI.getPaths().get(path) : null;
+        PathItem pathItem = findPathItem(openAPI, path);
         if (pathItem == null) {
             return new MockResponse(404, Map.of("error", "Path not found: " + path), "application/json");
         }
@@ -146,7 +146,8 @@ public class MockGeneratorService {
         if (format == null) format = "";
         return switch (format) {
             case "date-time" -> faker.date().birthday().toInstant().toString();
-            case "date" -> faker.date().birthday().toLocalDate().toString();
+            case "date" -> faker.date().birthday().toInstant()
+                    .atZone(java.time.ZoneId.systemDefault()).toLocalDate().toString();
             case "email" -> faker.internet().emailAddress();
             case "uri", "url" -> faker.internet().url();
             case "uuid" -> UUID.randomUUID().toString();
@@ -169,12 +170,28 @@ public class MockGeneratorService {
             com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
             String json = mapper.writeValueAsString(oasDoc);
             ParseOptions opts = new ParseOptions();
-            opts.setResolve(false);
+            opts.setResolve(true);
+            opts.setResolveFully(true);
             var result = new OpenAPIV3Parser().readContents(json, null, opts);
             return result.getOpenAPI();
         } catch (Exception e) {
             return null;
         }
+    }
+
+    private PathItem findPathItem(OpenAPI openAPI, String requestPath) {
+        if (openAPI.getPaths() == null) return null;
+        // Exact match first
+        PathItem exact = openAPI.getPaths().get(requestPath);
+        if (exact != null) return exact;
+        // Template match: /pet/{petId} → /pet/[^/]+
+        for (Map.Entry<String, PathItem> entry : openAPI.getPaths().entrySet()) {
+            String pattern = entry.getKey()
+                    .replaceAll("\\{[^/]+}", "[^/]+")
+                    .replace("/", "\\/");
+            if (requestPath.matches(pattern)) return entry.getValue();
+        }
+        return null;
     }
 
     private Operation getOperation(PathItem item, String method) {

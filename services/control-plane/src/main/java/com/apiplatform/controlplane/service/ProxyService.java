@@ -96,6 +96,7 @@ public class ProxyService {
         if (req.description() != null) proxy.setDescription(req.description());
         if (req.targetUrl() != null) proxy.setTargetUrl(req.targetUrl());
         if (req.stripPrefix() != null) proxy.setStripPrefix(req.stripPrefix());
+        if (req.apiId() != null) proxy.setApiId(req.apiId());
         if (req.policies() != null) proxy.setPolicies(req.policies());
         if (req.routes() != null) proxy.setRoutes(req.routes());
         if (req.headers() != null) proxy.setHeaders(req.headers());

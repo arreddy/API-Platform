@@ -22,31 +22,36 @@ public class ControlPlaneClient {
     @Value("${app.internal-token}")
     private String internalToken;
 
-    @Cacheable(value = "oas-documents", key = "#proxyId")
+    @Cacheable(value = "oas-documents", key = "#proxyId", unless = "#result == null")
     @SuppressWarnings("unchecked")
     public Map<String, Object> fetchOasForProxy(String proxyId) {
         try {
-            // Get proxy to find api_id
+            log.debug("Fetching proxy {} from control plane", proxyId);
             Map<String, Object> proxy = webClientBuilder.build()
                     .get()
                     .uri(controlPlaneUrl + "/api/v1/proxies/" + proxyId)
-                    .header("X-Internal-Token", internalToken)
                     .retrieve()
                     .bodyToMono(Map.class)
                     .block();
 
-            if (proxy == null || proxy.get("api_id") == null) return null;
+            log.debug("Proxy response: {}", proxy);
+            if (proxy == null || proxy.get("apiId") == null) {
+                log.warn("Proxy {} has no apiId linked", proxyId);
+                return null;
+            }
 
-            String apiId = (String) proxy.get("api_id");
+            String apiId = (String) proxy.get("apiId");
+            log.debug("Fetching OAS for apiId {}", apiId);
 
-            // Fetch the OAS document
-            return webClientBuilder.build()
+            Map<String, Object> oas = webClientBuilder.build()
                     .get()
                     .uri(controlPlaneUrl + "/api/v1/apis/" + apiId + "/oas")
-                    .header("X-Internal-Token", internalToken)
                     .retrieve()
                     .bodyToMono(Map.class)
                     .block();
+
+            log.debug("OAS fetched: {} keys", oas != null ? oas.size() : 0);
+            return oas;
         } catch (Exception e) {
             log.warn("Failed to fetch OAS for proxy {}: {}", proxyId, e.getMessage());
             return null;
