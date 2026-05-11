@@ -48,7 +48,7 @@ public interface RequestLogRepository extends JpaRepository<RequestLog, String> 
     @Query(value = """
         SELECT date_trunc('hour', created_at) AS hour,
                COUNT(*) AS requests,
-               AVG(latency_ms)::numeric(10,2) AS avg_latency,
+               CAST(AVG(latency_ms) AS numeric(10,2)) AS avg_latency,
                COUNT(*) FILTER (WHERE status_code >= 400) AS errors
         FROM request_logs
         WHERE tenant_id = :tenantId
