@@ -1,0 +1,25 @@
+{
+  "name": "api-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Scalable API Management Platform — monorepo root",
+  "scripts": {
+    "dev": "docker compose up --build",
+    "dev:infra": "docker compose up postgres redis -d",
+    "dev:cp": "cd services/control-plane && mvn spring-boot:run",
+    "dev:gateway": "cd services/gateway && mvn spring-boot:run",
+    "dev:mock": "cd services/mock-server && mvn spring-boot:run",
+    "dev:portal": "cd portal && npm run dev",
+    "install:portal": "cd portal && npm install",
+    "build:all": "npm run build:cp && npm run build:gw && npm run build:mock && npm run build:portal",
+    "build:cp": "cd services/control-plane && mvn -q package -DskipTests",
+    "build:gw": "cd services/gateway && mvn -q package -DskipTests",
+    "build:mock": "cd services/mock-server && mvn -q package -DskipTests",
+    "build:portal": "cd portal && npm run build",
+    "docker:build": "docker compose build",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "k8s:apply": "kubectl apply -f k8s/",
+    "k8s:delete": "kubectl delete -f k8s/"
+  }
+}

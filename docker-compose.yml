@@ -1,0 +1,113 @@
+version: '3.9'
+
+services:
+  # ── Infrastructure ─────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: api-platform-db
+    environment:
+      POSTGRES_DB: api_platform
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: api-platform-redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # ── Control Plane (Spring Boot) ────────────────────────────────────────────
+  control-plane:
+    build:
+      context: ./services/control-plane
+      dockerfile: Dockerfile
+    container_name: api-platform-control-plane
+    environment:
+      PORT: 3001
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: api_platform
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      JWT_SECRET: ${JWT_SECRET:-dev-jwt-secret-change-in-production}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-internal-dev-token}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3003}
+      DEV_MODE: "true"
+    ports:
+      - '3001:3001'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ── Gateway (Spring Cloud Gateway) ────────────────────────────────────────
+  gateway:
+    build:
+      context: ./services/gateway
+      dockerfile: Dockerfile
+    container_name: api-platform-gateway
+    environment:
+      PORT: 3000
+      CONTROL_PLANE_URL: http://control-plane:3001
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-internal-dev-token}
+    ports:
+      - '3000:3000'
+    depends_on:
+      - control-plane
+      - redis
+    restart: unless-stopped
+
+  # ── Mock Server (Spring Boot) ──────────────────────────────────────────────
+  mock-server:
+    build:
+      context: ./services/mock-server
+      dockerfile: Dockerfile
+    container_name: api-platform-mock
+    environment:
+      PORT: 3002
+      CONTROL_PLANE_URL: http://control-plane:3001
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-internal-dev-token}
+    ports:
+      - '3002:3002'
+    depends_on:
+      - control-plane
+    restart: unless-stopped
+
+  # ── Developer Portal ───────────────────────────────────────────────────────
+  portal:
+    build:
+      context: ./portal
+      dockerfile: Dockerfile
+    container_name: api-platform-portal
+    ports:
+      - '3003:80'
+    depends_on:
+      - control-plane
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  default:
+    name: api-platform-network

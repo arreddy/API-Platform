@@ -1,0 +1,32 @@
+server:
+  port: ${PORT:3002}
+
+spring:
+  application:
+    name: mock-server
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+
+  cache:
+    type: simple
+    cache-names: oas-documents
+    caffeine:
+      spec: maximumSize=100,expireAfterWrite=120s
+
+app:
+  control-plane-url: ${CONTROL_PLANE_URL:http://localhost:3001}
+  internal-token: ${INTERNAL_TOKEN:internal-dev-token}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+logging:
+  level:
+    com.apiplatform: INFO
