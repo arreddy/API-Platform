@@ -6,6 +6,9 @@ import com.apiplatform.controlplane.entity.RequestLog;
 import com.apiplatform.controlplane.exception.AppException;
 import com.apiplatform.controlplane.security.ApiPrincipal;
 import com.apiplatform.controlplane.service.AnalyticsService;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.OffsetDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "Analytics", description = "Request traffic summaries and raw request logs")
 @RestController
 @RequestMapping("/api/v1/analytics")
 @RequiredArgsConstructor
@@ -25,6 +29,7 @@ public class AnalyticsController {
   @Value("${app.internal-token}")
   private String internalToken;
 
+  @Operation(summary = "Traffic summary", description = "Totals, time-series, and status distribution for the given period (defaults to last 24 h)")
   @GetMapping("/summary")
   public AnalyticsDto.Summary summary(
       @AuthenticationPrincipal ApiPrincipal principal,
@@ -38,6 +43,7 @@ public class AnalyticsController {
         to != null ? OffsetDateTime.parse(to) : null);
   }
 
+  @Operation(summary = "Raw request logs", description = "Paginated list of individual requests; filter by proxyId")
   @GetMapping("/requests")
   public PageDto<RequestLog> requests(
       @AuthenticationPrincipal ApiPrincipal principal,
@@ -47,7 +53,7 @@ public class AnalyticsController {
     return analyticsService.getRequests(principal.tenantId(), proxyId, page, limit);
   }
 
-  // Internal: batch ingest from gateway
+  @Hidden
   @PostMapping("/_internal/ingest")
   public ResponseEntity<Void> ingest(
       @RequestHeader("X-Internal-Token") String token,

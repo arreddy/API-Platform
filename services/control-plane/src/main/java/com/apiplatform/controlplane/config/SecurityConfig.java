@@ -50,6 +50,12 @@ public class SecurityConfig {
             auth ->
                 auth.requestMatchers("/health", "/actuator/**")
                     .permitAll()
+                    .requestMatchers(
+                        "/swagger-ui.html",
+                        "/swagger-ui/**",
+                        "/v3/api-docs",
+                        "/v3/api-docs/**")
+                    .permitAll()
                     .requestMatchers("/api/v1/auth/**")
                     .permitAll()
                     // Internal endpoints validated by header not JWT

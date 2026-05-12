@@ -5,6 +5,8 @@ import com.apiplatform.controlplane.exception.AppException;
 import com.apiplatform.controlplane.repository.UserRepository;
 import com.apiplatform.controlplane.security.ApiPrincipal;
 import com.apiplatform.controlplane.service.JwtService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -17,6 +19,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "Authentication", description = "Login, register, and inspect the current user")
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
@@ -35,6 +38,7 @@ public class AuthController {
       @NotBlank @Size(min = 8) String password,
       @NotBlank String name) {}
 
+  @Operation(summary = "Login", description = "Returns a JWT token valid for 24 h")
   @PostMapping("/login")
   public ResponseEntity<Map<String, Object>> login(@Valid @RequestBody LoginRequest req) {
     User user =
@@ -63,6 +67,7 @@ public class AuthController {
                 user.getRole())));
   }
 
+  @Operation(summary = "Register", description = "Creates a new developer account under the default tenant")
   @PostMapping("/register")
   public ResponseEntity<Map<String, Object>> register(@Valid @RequestBody RegisterRequest req) {
     if (userRepository.existsByEmail(req.email())) {
@@ -97,6 +102,7 @@ public class AuthController {
                     user.getRole())));
   }
 
+  @Operation(summary = "Current user", description = "Returns profile of the authenticated user")
   @GetMapping("/me")
   public ResponseEntity<Map<String, Object>> me(@AuthenticationPrincipal ApiPrincipal principal) {
     User user =

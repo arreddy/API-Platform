@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 class GlobalExceptionHandlerTest {
 
@@ -41,6 +42,15 @@ class GlobalExceptionHandlerTest {
     ResponseEntity<Map<String, String>> response = handler.handleUploadSize(ex);
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.PAYLOAD_TOO_LARGE);
     assertThat(response.getBody()).containsKey("error");
+  }
+
+  @Test
+  void handleNoResource_returns404WithNoBody() {
+    NoResourceFoundException ex = new NoResourceFoundException(
+        org.springframework.http.HttpMethod.GET, "/favicon.ico");
+    ResponseEntity<Void> response = handler.handleNoResource(ex);
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    assertThat(response.getBody()).isNull();
   }
 
   @Test

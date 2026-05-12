@@ -6,6 +6,9 @@ import com.apiplatform.controlplane.entity.Proxy;
 import com.apiplatform.controlplane.exception.AppException;
 import com.apiplatform.controlplane.security.ApiPrincipal;
 import com.apiplatform.controlplane.service.ProxyService;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "Proxies", description = "Manage API proxies, routing, versioning, and rollback")
 @RestController
 @RequestMapping("/api/v1/proxies")
 @RequiredArgsConstructor
@@ -70,6 +74,7 @@ public class ProxyController {
     return proxyService.getVersions(principal.tenantId(), id);
   }
 
+  @Operation(summary = "Rollback proxy", description = "Restores the proxy configuration to a previous version snapshot")
   @PostMapping("/{id}/rollback/{version}")
   public ProxyDto.Full rollback(
       @AuthenticationPrincipal ApiPrincipal principal,
@@ -78,7 +83,7 @@ public class ProxyController {
     return proxyService.rollback(principal.tenantId(), id, principal.userId(), version);
   }
 
-  // Internal endpoint — used by gateway to load all active proxies
+  @Hidden
   @GetMapping("/_internal/active")
   public List<Proxy> activeProxies(@RequestHeader("X-Internal-Token") String token) {
     if (!internalToken.equals(token)) {

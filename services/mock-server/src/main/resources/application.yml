@@ -27,6 +27,13 @@ management:
       exposure:
         include: health
 
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    try-it-out-enabled: true
+
 logging:
   level:
     com.apiplatform: DEBUG

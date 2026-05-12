@@ -2,6 +2,9 @@ package com.apiplatform.mockserver.controller;
 
 import com.apiplatform.mockserver.service.ControlPlaneClient;
 import com.apiplatform.mockserver.service.MockGeneratorService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -9,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "Mock", description = "Generate mock responses from OAS documents")
 @RestController
 @RequiredArgsConstructor
 public class MockController {
@@ -16,19 +20,22 @@ public class MockController {
   private final MockGeneratorService generator;
   private final ControlPlaneClient controlPlaneClient;
 
+  @Operation(summary = "Health check")
   @GetMapping("/health")
   public Map<String, String> health() {
     return Map.of("status", "ok", "service", "mock-server");
   }
 
-  /**
-   * Mock any path under /mock/{proxyId}/** Optional query param ?__status=201 to control response
-   * status.
-   */
+  @Operation(
+      summary = "Mock proxy",
+      description =
+          "Routes `{method} /mock/{proxyId}/{path}` through the proxy's linked OAS document "
+              + "and returns a generated response. "
+              + "Add `?__status=201` to request a specific HTTP status code.")
   @RequestMapping("/mock/{proxyId}/**")
   public ResponseEntity<Object> mockProxy(
-      @PathVariable String proxyId,
-      @RequestParam(value = "__status", defaultValue = "200") int statusCode,
+      @Parameter(description = "Proxy ID from the control plane") @PathVariable String proxyId,
+      @Parameter(description = "Desired response status code") @RequestParam(value = "__status", defaultValue = "200") int statusCode,
       jakarta.servlet.http.HttpServletRequest request) {
 
     Map<String, Object> oasDoc = controlPlaneClient.fetchOasForProxy(proxyId);
@@ -52,7 +59,9 @@ public class MockController {
         .body(result.body());
   }
 
-  /** Inline mock — caller provides OAS document, path, method, and optional status. */
+  @Operation(
+      summary = "Inline mock",
+      description = "Supply your own OAS document in the request body — no proxy registration needed")
   @PostMapping("/mock/inline")
   public ResponseEntity<Object> mockInline(@RequestBody InlineRequest req) {
     if (req.oasDocument() == null || req.path() == null || req.method() == null) {

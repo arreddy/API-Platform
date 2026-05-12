@@ -7,6 +7,8 @@ import com.apiplatform.controlplane.service.ApiRegistryService;
 import com.apiplatform.controlplane.service.OasValidatorService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -18,6 +20,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+@Tag(name = "APIs", description = "Register and manage OpenAPI specifications")
 @RestController
 @RequestMapping("/api/v1/apis")
 @RequiredArgsConstructor
@@ -40,6 +43,7 @@ public class ApiController {
     return apiService.get(principal.tenantId(), id);
   }
 
+  @Operation(summary = "Get OAS document", description = "Returns the stored OAS document as JSON (default) or YAML (`?format=yaml`)")
   @GetMapping("/{id}/oas")
   public ResponseEntity<Object> getOas(
       @AuthenticationPrincipal ApiPrincipal principal,
@@ -57,6 +61,11 @@ public class ApiController {
     return ResponseEntity.ok(doc);
   }
 
+  @Operation(
+      summary = "Register API",
+      description =
+          "Upload an OAS 3.x document (multipart `oas` file **or** `oasText` param). "
+              + "Returns the saved API summary plus suggested proxy configuration.")
   @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
   public ResponseEntity<ApiDto.RegisterResponse> register(
       @AuthenticationPrincipal ApiPrincipal principal,
@@ -86,6 +95,7 @@ public class ApiController {
     return ResponseEntity.noContent().build();
   }
 
+  @Operation(summary = "Validate OAS", description = "Parse and validate an OAS document without saving it")
   @PostMapping(
       path = "/validate",
       consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
