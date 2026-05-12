@@ -9,7 +9,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableAsync
 @EnableScheduling
 public class ControlPlaneApplication {
-    public static void main(String[] args) {
-        SpringApplication.run(ControlPlaneApplication.class, args);
-    }
+  public static void main(String[] args) {
+    SpringApplication.run(ControlPlaneApplication.class, args);
+  }
 }

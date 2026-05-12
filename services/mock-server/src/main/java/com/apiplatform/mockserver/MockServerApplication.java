@@ -7,7 +7,7 @@ import org.springframework.cache.annotation.EnableCaching;
 @SpringBootApplication
 @EnableCaching
 public class MockServerApplication {
-    public static void main(String[] args) {
-        SpringApplication.run(MockServerApplication.class, args);
-    }
+  public static void main(String[] args) {
+    SpringApplication.run(MockServerApplication.class, args);
+  }
 }
