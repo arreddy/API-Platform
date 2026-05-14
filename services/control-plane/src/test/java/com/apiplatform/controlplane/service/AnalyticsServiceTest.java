@@ -91,12 +91,12 @@ class AnalyticsServiceTest {
 
   @Test
   void getSummary_returnsTotals() {
-    when(logRepository.countByTenantIdAndPeriod(eq(TENANT), any(), any())).thenReturn(100L);
-    when(logRepository.countSuccessByTenantIdAndPeriod(eq(TENANT), any(), any())).thenReturn(90L);
-    when(logRepository.countErrorsByTenantIdAndPeriod(eq(TENANT), any(), any())).thenReturn(10L);
-    when(logRepository.avgLatencyByTenantIdAndPeriod(eq(TENANT), any(), any())).thenReturn(55.5);
-    when(logRepository.timeSeriesByTenantId(eq(TENANT), any(), any())).thenReturn(List.of());
-    when(logRepository.statusDistribution(eq(TENANT), any(), any())).thenReturn(List.of());
+    when(logRepository.countByTenantIdAndPeriod(eq(TENANT), any(), any(), any())).thenReturn(100L);
+    when(logRepository.countSuccessByTenantIdAndPeriod(eq(TENANT), any(), any(), any())).thenReturn(90L);
+    when(logRepository.countErrorsByTenantIdAndPeriod(eq(TENANT), any(), any(), any())).thenReturn(10L);
+    when(logRepository.avgLatencyByTenantIdAndPeriod(eq(TENANT), any(), any(), any())).thenReturn(55.5);
+    when(logRepository.timeSeriesByTenantId(eq(TENANT), any(), any(), any())).thenReturn(List.of());
+    when(logRepository.statusDistribution(eq(TENANT), any(), any(), any())).thenReturn(List.of());
 
     var result = service.getSummary(TENANT, null, null, null);
     assertThat(result.totals().totalRequests()).isEqualTo(100L);
@@ -107,12 +107,12 @@ class AnalyticsServiceTest {
 
   @Test
   void getSummary_nullAvgLatency_defaultsToZero() {
-    when(logRepository.countByTenantIdAndPeriod(any(), any(), any())).thenReturn(0L);
-    when(logRepository.countSuccessByTenantIdAndPeriod(any(), any(), any())).thenReturn(0L);
-    when(logRepository.countErrorsByTenantIdAndPeriod(any(), any(), any())).thenReturn(0L);
-    when(logRepository.avgLatencyByTenantIdAndPeriod(any(), any(), any())).thenReturn(null);
-    when(logRepository.timeSeriesByTenantId(any(), any(), any())).thenReturn(List.of());
-    when(logRepository.statusDistribution(any(), any(), any())).thenReturn(List.of());
+    when(logRepository.countByTenantIdAndPeriod(any(), any(), any(), any())).thenReturn(0L);
+    when(logRepository.countSuccessByTenantIdAndPeriod(any(), any(), any(), any())).thenReturn(0L);
+    when(logRepository.countErrorsByTenantIdAndPeriod(any(), any(), any(), any())).thenReturn(0L);
+    when(logRepository.avgLatencyByTenantIdAndPeriod(any(), any(), any(), any())).thenReturn(null);
+    when(logRepository.timeSeriesByTenantId(any(), any(), any(), any())).thenReturn(List.of());
+    when(logRepository.statusDistribution(any(), any(), any(), any())).thenReturn(List.of());
 
     var result = service.getSummary(TENANT, null, null, null);
     assertThat(result.totals().avgLatency()).isEqualTo(0L);
@@ -173,11 +173,11 @@ class AnalyticsServiceTest {
   }
 
   private void stubSummaryRepoWith(List<Object[]> timeSeries, List<Object[]> statusDist) {
-    when(logRepository.countByTenantIdAndPeriod(any(), any(), any())).thenReturn(0L);
-    when(logRepository.countSuccessByTenantIdAndPeriod(any(), any(), any())).thenReturn(0L);
-    when(logRepository.countErrorsByTenantIdAndPeriod(any(), any(), any())).thenReturn(0L);
-    when(logRepository.avgLatencyByTenantIdAndPeriod(any(), any(), any())).thenReturn(null);
-    when(logRepository.timeSeriesByTenantId(any(), any(), any())).thenReturn(timeSeries);
-    when(logRepository.statusDistribution(any(), any(), any())).thenReturn(statusDist);
+    when(logRepository.countByTenantIdAndPeriod(any(), any(), any(), any())).thenReturn(0L);
+    when(logRepository.countSuccessByTenantIdAndPeriod(any(), any(), any(), any())).thenReturn(0L);
+    when(logRepository.countErrorsByTenantIdAndPeriod(any(), any(), any(), any())).thenReturn(0L);
+    when(logRepository.avgLatencyByTenantIdAndPeriod(any(), any(), any(), any())).thenReturn(null);
+    when(logRepository.timeSeriesByTenantId(any(), any(), any(), any())).thenReturn(timeSeries);
+    when(logRepository.statusDistribution(any(), any(), any(), any())).thenReturn(statusDist);
   }
 }

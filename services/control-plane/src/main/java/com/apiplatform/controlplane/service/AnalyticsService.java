@@ -50,20 +50,21 @@ public class AnalyticsService {
     if (from == null) from = OffsetDateTime.now().minusHours(24);
     if (to == null) to = OffsetDateTime.now();
 
-    long total = logRepository.countByTenantIdAndPeriod(tenantId, from, to);
-    long success = logRepository.countSuccessByTenantIdAndPeriod(tenantId, from, to);
-    long errors = logRepository.countErrorsByTenantIdAndPeriod(tenantId, from, to);
-    Double avgLatency = logRepository.avgLatencyByTenantIdAndPeriod(tenantId, from, to);
+    long total = logRepository.countByTenantIdAndPeriod(tenantId, proxyId, from, to);
+    long success = logRepository.countSuccessByTenantIdAndPeriod(tenantId, proxyId, from, to);
+    long errors = logRepository.countErrorsByTenantIdAndPeriod(tenantId, proxyId, from, to);
+    Double avgLatency = logRepository.avgLatencyByTenantIdAndPeriod(tenantId, proxyId, from, to);
+    Double p99Latency = logRepository.p99LatencyByTenantIdAndPeriod(tenantId, proxyId, from, to);
 
     List<Map<String, Object>> timeSeries =
-        buildTimeSeries(logRepository.timeSeriesByTenantId(tenantId, from, to));
+        buildTimeSeries(logRepository.timeSeriesByTenantId(tenantId, proxyId, from, to));
 
     List<Map<String, Object>> statusDist =
-        buildStatusDist(logRepository.statusDistribution(tenantId, from, to));
+        buildStatusDist(logRepository.statusDistribution(tenantId, proxyId, from, to));
 
     return new AnalyticsDto.Summary(
         new AnalyticsDto.Totals(
-            total, success, errors, avgLatency != null ? Math.round(avgLatency) : 0, 0),
+            total, success, errors, avgLatency != null ? Math.round(avgLatency) : 0, p99Latency != null ? Math.round(p99Latency) : 0),
         timeSeries,
         statusDist,
         Map.of("from", from.toString(), "to", to.toString()));

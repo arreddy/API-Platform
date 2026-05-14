@@ -73,9 +73,7 @@ public class SecurityConfig {
     if (devMode) {
       http.addFilterBefore(
           (req, res, chain) -> {
-            var httpReq = (jakarta.servlet.http.HttpServletRequest) req;
-            if (SecurityContextHolder.getContext().getAuthentication() == null
-                && httpReq.getHeader("Authorization") == null) {
+            if (SecurityContextHolder.getContext().getAuthentication() == null) {
               ApiPrincipal principal = new ApiPrincipal(DEFAULT_DEV_USER, DEFAULT_TENANT, "admin");
               var auth =
                   new UsernamePasswordAuthenticationToken(

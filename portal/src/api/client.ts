@@ -2,7 +2,6 @@ import axios from 'axios';
 
 export const api = axios.create({
   baseURL: '/api/v1',
-  headers: { 'Content-Type': 'application/json' },
 });
 
 api.interceptors.request.use((config) => {
@@ -28,12 +27,10 @@ export const apisApi = {
   get: (id: string) => api.get(`/apis/${id}`),
   getOas: (id: string, format?: 'json' | 'yaml') =>
     api.get(`/apis/${id}/oas`, { params: { format } }),
-  create: (formData: FormData) =>
-    api.post('/apis', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  create: (formData: FormData) => api.post('/apis', formData),
   update: (id: string, data: unknown) => api.put(`/apis/${id}`, data),
   delete: (id: string) => api.delete(`/apis/${id}`),
-  validate: (formData: FormData) =>
-    api.post('/apis/validate', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  validate: (formData: FormData) => api.post('/apis/validate', formData),
 };
 
 // ── Proxies ───────────────────────────────────────────────────────────────────
