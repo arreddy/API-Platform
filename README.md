@@ -2,6 +2,15 @@
 
 A production-ready, microservices-based API Management Platform supporting full API lifecycle management — from OAS registration to proxying, rate limiting, analytics, and developer self-service.
 
+## Wiki
+
+The project documentation lives under `docs/` and includes:
+
+- [Architecture](docs/architecture.md)
+- [Quick Start](docs/quick-start.md)
+- [API Reference](docs/api-reference.md)
+- [Deployment](docs/deployment.md)
+
 ## Architecture
 
 ```
