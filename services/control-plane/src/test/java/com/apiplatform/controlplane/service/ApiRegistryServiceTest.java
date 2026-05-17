@@ -26,6 +26,7 @@ class ApiRegistryServiceTest {
 
   @Mock ApiRepository apiRepository;
   @Mock OasValidatorService oasValidator;
+  @Mock OasAnalysisService oasAnalysisService;
   @InjectMocks ApiRegistryService service;
 
   private static final String TENANT = "00000000-0000-0000-0000-000000000001";

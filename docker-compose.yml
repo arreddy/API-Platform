@@ -41,7 +41,7 @@ services:
     container_name: api-platform-oas-analyzer
     environment:
       PORT: 3004
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
     ports:
       - '3004:3004'
     restart: unless-stopped

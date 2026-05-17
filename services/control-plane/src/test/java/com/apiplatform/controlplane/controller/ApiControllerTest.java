@@ -9,6 +9,7 @@ import com.apiplatform.controlplane.dto.ApiDto;
 import com.apiplatform.controlplane.dto.PageDto;
 import com.apiplatform.controlplane.exception.AppException;
 import com.apiplatform.controlplane.service.ApiRegistryService;
+import com.apiplatform.controlplane.service.OasAnalysisService;
 import com.apiplatform.controlplane.service.OasValidatorService;
 import com.apiplatform.controlplane.support.WithMockApiPrincipal;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,6 +33,7 @@ class ApiControllerTest {
   @Autowired MockMvc mockMvc;
   @Autowired ObjectMapper objectMapper;
   @MockBean ApiRegistryService apiService;
+  @MockBean OasAnalysisService oasAnalysisService;
 
   private static final String TENANT = "00000000-0000-0000-0000-000000000001";
   private static final String API_ID = UUID.randomUUID().toString();
@@ -52,7 +54,8 @@ class ApiControllerTest {
   private ApiDto.RegisterResponse sampleRegisterResponse() {
     return new ApiDto.RegisterResponse(
         sampleSummary(),
-        Map.of("targetUrl", "https://api.example.com/v1", "pathPrefix", "/pet-api", "routes", List.of()));
+        Map.of("targetUrl", "https://api.example.com/v1", "pathPrefix", "/pet-api", "routes", List.of()),
+        null);
   }
 
   // ---- GET /api/v1/apis ----

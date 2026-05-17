@@ -1,5 +1,8 @@
-import { Spectral } from '@stoplight/spectral-core';
-import { oas } from '@stoplight/spectral-rulesets';
+import spectralCore from '@stoplight/spectral-core';
+import spectralRulesets from '@stoplight/spectral-rulesets';
+
+const { Spectral } = spectralCore;
+const { oas } = spectralRulesets;
 
 const SEVERITY_NAMES = ['error', 'warning', 'info', 'hint'];
 
