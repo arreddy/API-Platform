@@ -31,6 +31,8 @@ export const apisApi = {
   update: (id: string, data: unknown) => api.put(`/apis/${id}`, data),
   delete: (id: string) => api.delete(`/apis/${id}`),
   validate: (formData: FormData) => api.post('/apis/validate', formData),
+  getInsights: (id: string) => api.get(`/apis/${id}/insights`),
+  analyze: (id: string) => api.post(`/apis/${id}/analyze`),
 };
 
 // ── Proxies ───────────────────────────────────────────────────────────────────

@@ -33,6 +33,19 @@ services:
       timeout: 3s
       retries: 5
 
+  # ── OAS Analyzer (Node.js — Spectral + AI) ────────────────────────────────
+  oas-analyzer:
+    build:
+      context: ./services/oas-analyzer
+      dockerfile: Dockerfile
+    container_name: api-platform-oas-analyzer
+    environment:
+      PORT: 3004
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    ports:
+      - '3004:3004'
+    restart: unless-stopped
+
   # ── Control Plane (Spring Boot) ────────────────────────────────────────────
   control-plane:
     build:
@@ -48,13 +61,16 @@ services:
       DB_PASSWORD: postgres
       JWT_SECRET: ${JWT_SECRET:-dev-jwt-secret-change-in-production}
       INTERNAL_TOKEN: ${INTERNAL_TOKEN:-internal-dev-token}
-      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3003} 
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3003}
       DEV_MODE: "true"
+      OAS_ANALYZER_URL: http://oas-analyzer:3004
     ports:
       - '3001:3001'
     depends_on:
       postgres:
         condition: service_healthy
+      oas-analyzer:
+        condition: service_started
     restart: unless-stopped
 
   # ── Gateway (Spring Cloud Gateway) ────────────────────────────────────────

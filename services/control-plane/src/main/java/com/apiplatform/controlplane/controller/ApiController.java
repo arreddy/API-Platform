@@ -1,9 +1,11 @@
 package com.apiplatform.controlplane.controller;
 
 import com.apiplatform.controlplane.dto.ApiDto;
+import com.apiplatform.controlplane.dto.OasInsightDto;
 import com.apiplatform.controlplane.dto.PageDto;
 import com.apiplatform.controlplane.security.ApiPrincipal;
 import com.apiplatform.controlplane.service.ApiRegistryService;
+import com.apiplatform.controlplane.service.OasAnalysisService;
 import com.apiplatform.controlplane.service.OasValidatorService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -27,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class ApiController {
 
   private final ApiRegistryService apiService;
+  private final OasAnalysisService oasAnalysisService;
 
   @GetMapping
   public PageDto<ApiDto.Summary> list(
@@ -93,6 +96,25 @@ public class ApiController {
       @AuthenticationPrincipal ApiPrincipal principal, @PathVariable String id) {
     apiService.delete(principal.tenantId(), id);
     return ResponseEntity.noContent().build();
+  }
+
+  @Operation(summary = "Get analysis insights", description = "Returns stored Spectral + AI insights for an API")
+  @GetMapping("/{id}/insights")
+  public ResponseEntity<OasInsightDto.Full> getInsights(
+      @AuthenticationPrincipal ApiPrincipal principal, @PathVariable String id) {
+    OasInsightDto.Full insight = oasAnalysisService.getInsight(principal.tenantId(), id);
+    return insight != null ? ResponseEntity.ok(insight) : ResponseEntity.noContent().build();
+  }
+
+  @Operation(summary = "Re-analyze API", description = "Triggers Spectral + AI re-analysis on the stored OAS document")
+  @PostMapping("/{id}/analyze")
+  public ResponseEntity<OasInsightDto.Full> analyze(
+      @AuthenticationPrincipal ApiPrincipal principal, @PathVariable String id) throws Exception {
+    var oasDoc = apiService.getOasDocument(principal.tenantId(), id);
+    com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+    String oasContent = mapper.writeValueAsString(oasDoc);
+    OasInsightDto.Full insight = oasAnalysisService.analyze(id, principal.tenantId(), oasContent);
+    return insight != null ? ResponseEntity.ok(insight) : ResponseEntity.status(503).build();
   }
 
   @Operation(summary = "Validate OAS", description = "Parse and validate an OAS document without saving it")

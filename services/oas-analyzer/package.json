@@ -1,0 +1,17 @@
+{
+  "name": "oas-analyzer",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@stoplight/spectral-core": "^1.18.3",
+    "@stoplight/spectral-formats": "^1.6.0",
+    "@stoplight/spectral-rulesets": "^1.21.0",
+    "express": "^4.18.2",
+    "js-yaml": "^4.1.0"
+  }
+}

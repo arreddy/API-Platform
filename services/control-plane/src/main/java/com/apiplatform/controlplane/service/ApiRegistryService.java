@@ -1,6 +1,7 @@
 package com.apiplatform.controlplane.service;
 
 import com.apiplatform.controlplane.dto.ApiDto;
+import com.apiplatform.controlplane.dto.OasInsightDto;
 import com.apiplatform.controlplane.dto.PageDto;
 import com.apiplatform.controlplane.entity.Api;
 import com.apiplatform.controlplane.exception.AppException;
@@ -21,6 +22,7 @@ public class ApiRegistryService {
 
   private final ApiRepository apiRepository;
   private final OasValidatorService oasValidator;
+  private final OasAnalysisService oasAnalysisService;
 
   public PageDto<ApiDto.Summary> list(
       String tenantId, String status, String search, int page, int size) {
@@ -105,9 +107,13 @@ public class ApiRegistryService {
             ? "https://your-backend.example.com"
             : (String) parsed.servers().get(0).get("url");
 
+    // Run Spectral + AI analysis (best-effort; never fails the registration)
+    OasInsightDto.Full insights = oasAnalysisService.analyze(saved.getId(), tenantId, oasContent);
+
     return new ApiDto.RegisterResponse(
         ApiDto.Summary.from(saved),
-        Map.of("targetUrl", targetUrl, "pathPrefix", "/" + name, "routes", suggestedRoutes));
+        Map.of("targetUrl", targetUrl, "pathPrefix", "/" + name, "routes", suggestedRoutes),
+        insights);
   }
 
   @Transactional

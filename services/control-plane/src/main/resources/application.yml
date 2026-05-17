@@ -47,6 +47,7 @@ app:
   internal-token: ${INTERNAL_TOKEN:internal-dev-token}
   cors-origin: ${CORS_ORIGIN:*}
   dev-mode: ${DEV_MODE:true}
+  oas-analyzer-url: ${OAS_ANALYZER_URL:http://localhost:3004}
 
 management:
   endpoints:

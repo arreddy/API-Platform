@@ -1,6 +1,7 @@
 package com.apiplatform.controlplane.dto;
 
 import com.apiplatform.controlplane.entity.Api;
+import com.apiplatform.controlplane.dto.OasInsightDto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
@@ -72,7 +73,7 @@ public class ApiDto {
     }
   }
 
-  public record RegisterResponse(Summary api, Map<String, Object> suggested) {}
+  public record RegisterResponse(Summary api, Map<String, Object> suggested, OasInsightDto.Full insights) {}
 
   // Request bodies
   public record UpdateRequest(String name, String description, String status, String oasContent) {}
