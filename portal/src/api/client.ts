@@ -35,6 +35,28 @@ export const apisApi = {
   analyze: (id: string) => api.post(`/apis/${id}/analyze`),
 };
 
+// ── Deploy ────────────────────────────────────────────────────────────────────
+export const deployApi = {
+  deploy: (
+    formData: FormData,
+    params?: {
+      targetUrlOverride?: string;
+      pathPrefixOverride?: string;
+      authTypeOverride?: string;
+      rateLimitRpmOverride?: number;
+    },
+  ) => {
+    const qs = new URLSearchParams();
+    if (params?.targetUrlOverride) qs.set('targetUrlOverride', params.targetUrlOverride);
+    if (params?.pathPrefixOverride) qs.set('pathPrefixOverride', params.pathPrefixOverride);
+    if (params?.authTypeOverride) qs.set('authTypeOverride', params.authTypeOverride);
+    if (params?.rateLimitRpmOverride != null)
+      qs.set('rateLimitRpmOverride', String(params.rateLimitRpmOverride));
+    const query = qs.toString();
+    return api.post(`/deploy${query ? '?' + query : ''}`, formData);
+  },
+};
+
 // ── Proxies ───────────────────────────────────────────────────────────────────
 export const proxiesApi = {
   list: (params?: Record<string, unknown>) => api.get('/proxies', { params }),

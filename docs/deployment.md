@@ -18,9 +18,14 @@ npm run docker:down
 
 ### Notes
 
-- The `control-plane`, `gateway`, `mock-server`, and `portal` services are built from the repo.
+- The `control-plane`, `gateway`, `mock-server`, `oas-analyzer`, and `portal` services are built from the repo.
 - `postgres` and `redis` run as companion infrastructure services.
 - Environment variables are injected via `docker-compose.yml` and can be configured using `.env`.
+- The `oas-analyzer` service requires `OPENAI_API_KEY` for AI scoring. Spectral linting works without it. Set the key in `.env` (never commit it to the repo):
+
+```bash
+echo "OPENAI_API_KEY=sk-proj-..." >> .env
+```
 
 ## Kubernetes Deployment
 
@@ -65,3 +70,5 @@ npm run docker:build
 - Change default secrets before production.
 - Use a managed PostgreSQL and Redis for reliability.
 - Secure the gateway and internal service communication with TLS and token auth.
+- Store `OPENAI_API_KEY` in a secrets manager (e.g. Kubernetes Secret, AWS SSM). Never hardcode it in `docker-compose.yml` or commit it to source control.
+- The OAS Analyzer is stateless — it can be scaled horizontally without coordination.

@@ -76,6 +76,23 @@ public class ProxyRegistry {
     return Collections.unmodifiableList(proxies);
   }
 
+  public reactor.core.publisher.Mono<Void> refreshNow() {
+    return webClient
+        .get()
+        .uri("/api/v1/proxies/_internal/active")
+        .header("X-Internal-Token", internalToken)
+        .retrieve()
+        .bodyToMono(ProxyConfig[].class)
+        .doOnNext(
+            configs -> {
+              proxies.clear();
+              if (configs != null) proxies.addAll(Arrays.asList(configs));
+              log.info("Manual refresh: loaded {} active proxies", proxies.size());
+              eventPublisher.publishEvent(new RefreshRoutesEvent(this));
+            })
+        .then();
+  }
+
   /** Longest-prefix match */
   public ProxyConfig match(String path) {
     return proxies.stream()

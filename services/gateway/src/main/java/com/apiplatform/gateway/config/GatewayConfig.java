@@ -6,11 +6,14 @@ import com.apiplatform.gateway.registry.ProxyRegistry;
 import java.net.URI;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.OrderedGatewayFilter;
 import org.springframework.cloud.gateway.route.Route;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.server.*;
 import org.springframework.web.server.ServerWebExchange;
@@ -19,11 +22,15 @@ import reactor.core.publisher.Mono;
 
 @Configuration
 @RequiredArgsConstructor
+@Slf4j
 public class GatewayConfig {
 
   private final ProxyRegistry proxyRegistry;
   private final ApiKeyAuthFilter apiKeyAuthFilter;
   private final RateLimitFilter rateLimitFilter;
+
+  @Value("${app.internal-token}")
+  private String internalToken;
 
   /**
    * Dynamic RouteLocator — rebuilds routes from the registry on every subscription. Spring Cloud
@@ -102,5 +109,25 @@ public class GatewayConfig {
             ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(Map.of("status", "ok", "service", "gateway")));
+  }
+
+  @Bean
+  public RouterFunction<ServerResponse> internalRefreshRoute() {
+    return RouterFunctions.route(
+        RequestPredicates.POST("/_internal/refresh"),
+        req -> {
+          String token = req.headers().firstHeader("X-Internal-Token");
+          if (!internalToken.equals(token)) {
+            return ServerResponse.status(HttpStatus.UNAUTHORIZED)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(Map.of("error", "Unauthorized"));
+          }
+          return proxyRegistry
+              .refreshNow()
+              .then(
+                  ServerResponse.ok()
+                      .contentType(MediaType.APPLICATION_JSON)
+                      .bodyValue(Map.of("refreshed", true)));
+        });
   }
 }

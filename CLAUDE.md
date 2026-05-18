@@ -10,6 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | Gateway | Spring Cloud Gateway (reactive) | 3000 |
 | Mock Server | Spring Boot 3.2, Java 21 | 3002 |
 | Developer Portal | React 18, Vite, TypeScript | 3003 |
+| OAS Analyzer | Node.js 20, Express | 3004 |
 | PostgreSQL | 16 | 5432 |
 | Redis | 7 | 6379 |
 
@@ -35,6 +36,16 @@ mvn verify                  # tests + JaCoCo coverage check (≥70% line coverag
 mvn fmt:format              # apply Google Java Format (run before committing)
 ```
 
+### OAS Analyzer (Node.js)
+```bash
+cd services/oas-analyzer
+npm ci
+npm run dev      # dev server on :3004 with --watch (auto-restart on file change)
+npm start        # production mode
+npm test         # vitest unit tests
+```
+Requires `OPENAI_API_KEY` in the environment for AI analysis. Spectral linting runs regardless.
+
 ### Developer Portal
 ```bash
 cd portal
@@ -57,7 +68,7 @@ The authoritative management API. All entities (`Api`, `Proxy`, `ApiKey`, `Reque
 
 **JSONB columns**: `policies`, `routes`, `headers`, `oas_document`, `servers`, `endpoints`, `security_schemes` are stored as JSONB via `hypersistence-utils`. Mapped as `Map<String,Object>` or `List<Map<String,Object>>` in entities. The datasource URL includes `?stringtype=unspecified` — required for Hibernate/PostgreSQL JSONB compatibility.
 
-**OAS registration flow**: `ApiController` → `OasValidatorService` (parses with swagger-parser, extracts endpoints/servers/tags) → `ApiRegistryService` (stores OAS document as JSONB, derives a slug `name`). The `name` slug must be unique per tenant.
+**OAS registration flow**: `ApiController` → `OasValidatorService` (parses with swagger-parser, extracts endpoints/servers/tags) → `ApiRegistryService` (stores OAS document as JSONB, derives a slug `name`) → `OasAnalysisService` (best-effort: calls OAS Analyzer, stores result in `oas_insights`). The `name` slug must be unique per tenant. Analysis failure never blocks registration.
 
 **Proxy versioning**: Every update to a `Proxy` creates an immutable `ProxyVersion` snapshot in `proxy_versions`. `ProxyService.rollback()` restores the snapshot and increments the version counter.
 
@@ -72,6 +83,17 @@ Fully reactive (Spring WebFlux). Routes are loaded dynamically — there is **no
 3. `RateLimitFilter` — uses Redis sliding window (key: `rl:{proxyId}:{keyId}:{windowSlot}`). Falls back to in-memory counters when Redis is unreachable. Adds `X-RateLimit-Limit` / `X-RateLimit-Remaining` response headers.
 4. `RequestLogFilter` (global, `LOWEST_PRECEDENCE`) — buffers log entries, flushes to `POST /api/v1/analytics/_internal/ingest` every 5s or when buffer reaches 100 entries.
 
+### OAS Analyzer
+Stateless Node.js service. Accepts `POST /analyze` with `{ oasContent: string|object }` and returns `{ spectral, ai }`.
+
+**Spectral analysis** (`src/spectral.js`): runs the `@stoplight/spectral-rulesets` OAS ruleset. Returns violations with `code`, `message`, `severity` (`error|warning|info|hint`), and `path`. The Spectral instance is a singleton — ruleset loading happens once at startup.
+
+**AI analysis** (`src/ai.js`): calls OpenAI `gpt-4o` with a fixed system prompt asking for a JSON object containing `score` (0–100), `summary`, `risks`, and `suggestions`. Input is truncated at 48 000 characters. If `OPENAI_API_KEY` is not set, returns a graceful `{ score: null, summary: "unavailable…" }` object — it never errors.
+
+**ESM / CJS interop**: `@stoplight/spectral-core` and `@stoplight/spectral-rulesets` are CJS packages. Import them via default export and destructure — named ESM imports fail: `import pkg from '@stoplight/spectral-core'; const { Spectral } = pkg;`.
+
+**Testing** (`vitest`): `ai.test.js` mocks the OpenAI class constructor with a module-level `mockCreate` fn (class mock in `vi.mock` factory). `spectral.test.js` hits the real Spectral (no mocks). `app.test.js` uses `supertest` against the Express app with both analysis modules mocked.
+
 ### Mock Server
 Stateless. Each request to `GET|POST|PUT|DELETE /mock/{proxyId}/**` fetches the proxy's linked OAS document from the control plane (cached 120s via Caffeine), then `MockGeneratorService` finds the matching operation and generates a realistic fake response using Datafaker. Use `?__status=404` to request a specific response code. `POST /mock/inline` accepts an OAS document directly without proxy registration.
 
@@ -83,6 +105,12 @@ Single-page React app. In Docker it's a static nginx build — the Vite dev prox
 **nginx** (`portal/nginx.conf`): proxies `/api/` to `http://control-plane:3001`. Requires `client_max_body_size 10m` and `proxy_request_buffering off` on the `/api/` location for multipart OAS uploads to work correctly.
 
 **Vite TypeScript config**: `tsconfig.json` must include `"types": ["vite/client"]` for `import.meta.env` to type-check.
+
+## Testing Conventions (OAS Analyzer)
+
+Uses **vitest** with ESM support. Test files live alongside source in `src/`. Run with `npm test`.
+
+`OasAnalysisService` in the control plane is tested with Mockito. The `RestClient` fluent chain (`post().uri().contentType().body().retrieve().body()`) is mocked using `mock(RequestBodySpec.class, RETURNS_SELF)` — this makes all chaining methods return the mock itself without explicit stubbing. Only `retrieve()` (which exits to `ResponseSpec`) and `responseSpec.body(Map.class)` need explicit stubs. `@MockitoSettings(strictness = Strictness.LENIENT)` is required because `@BeforeEach` stubs the full chain but `getInsight` tests don't use it.
 
 ## Testing Conventions (Control Plane)
 
@@ -102,3 +130,5 @@ Native SQL queries with optional `proxyId` filtering use `CAST(:proxyId AS TEXT)
 | `CORS_ORIGIN` | `*` | control-plane |
 | `CONTROL_PLANE_URL` | `http://localhost:3001` | gateway, mock-server |
 | `REDIS_HOST` | `localhost` | gateway |
+| `OAS_ANALYZER_URL` | `http://localhost:3004` | control-plane |
+| `OPENAI_API_KEY` | _(none)_ | oas-analyzer |

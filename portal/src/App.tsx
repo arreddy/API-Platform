@@ -3,6 +3,7 @@ import Layout from './components/layout/Layout';
 import Dashboard from './pages/Dashboard';
 import APIsPage from './pages/APIs';
 import APIDetailPage from './pages/APIDetail';
+import DeployPage from './pages/Deploy';
 import ProxiesPage from './pages/Proxies';
 import ProxyDetailPage from './pages/ProxyDetail';
 import APIKeysPage from './pages/APIKeys';
@@ -32,6 +33,7 @@ export default function App() {
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="apis" element={<APIsPage />} />
         <Route path="apis/:id" element={<APIDetailPage />} />
+        <Route path="deploy" element={<DeployPage />} />
         <Route path="proxies" element={<ProxiesPage />} />
         <Route path="proxies/:id" element={<ProxyDetailPage />} />
         <Route path="keys" element={<APIKeysPage />} />

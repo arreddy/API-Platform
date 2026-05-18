@@ -48,6 +48,8 @@ app:
   cors-origin: ${CORS_ORIGIN:*}
   dev-mode: ${DEV_MODE:true}
   oas-analyzer-url: ${OAS_ANALYZER_URL:http://localhost:3004}
+  gateway-url: ${GATEWAY_URL:http://localhost:3000}
+  openai-api-key: ${OPENAI_API_KEY:}
 
 management:
   endpoints:
