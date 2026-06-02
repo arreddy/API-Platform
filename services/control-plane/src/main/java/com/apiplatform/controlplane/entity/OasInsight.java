@@ -1,14 +1,14 @@
 package com.apiplatform.controlplane.entity;
 
 import com.apiplatform.controlplane.converter.UuidStringConverter;
-import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import lombok.*;
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "oas_insights")
@@ -30,7 +30,7 @@ public class OasInsight {
   @Column(name = "tenant_id", nullable = false, columnDefinition = "uuid")
   private String tenantId;
 
-  @Type(JsonType.class)
+  @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "spectral_violations", columnDefinition = "jsonb", nullable = false)
   @Builder.Default
   private List<Map<String, Object>> spectralViolations = List.of();
@@ -57,12 +57,12 @@ public class OasInsight {
   @Column(name = "ai_summary", columnDefinition = "text")
   private String aiSummary;
 
-  @Type(JsonType.class)
+  @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "ai_risks", columnDefinition = "jsonb", nullable = false)
   @Builder.Default
   private List<Map<String, Object>> aiRisks = List.of();
 
-  @Type(JsonType.class)
+  @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "ai_suggestions", columnDefinition = "jsonb", nullable = false)
   @Builder.Default
   private List<Map<String, Object>> aiSuggestions = List.of();

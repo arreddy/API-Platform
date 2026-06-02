@@ -47,7 +47,7 @@ class GlobalExceptionHandlerTest {
   @Test
   void handleNoResource_returns404WithNoBody() {
     NoResourceFoundException ex = new NoResourceFoundException(
-        org.springframework.http.HttpMethod.GET, "/favicon.ico");
+        org.springframework.http.HttpMethod.GET, "/favicon.ico", "");
     ResponseEntity<Void> response = handler.handleNoResource(ex);
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     assertThat(response.getBody()).isNull();

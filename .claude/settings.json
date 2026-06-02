@@ -1,3 +1,14 @@
 {
-  "enabledMcpjsonServers": ["spectral"]
+  "permissions": {
+    "allow": [
+      "Bash(curl -s \"https://search.maven.org/solrsearch/select?q=g:org.springframework.cloud+a:spring-cloud-dependencies+v:2025*&rows=10&wt=json\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(x['id']\\) for x in d['response']['docs']]\")",
+      "Bash(curl -s \"https://repo.maven.apache.org/maven2/org/springframework/cloud/spring-cloud-dependencies/maven-metadata.xml\")",
+      "Bash(curl -s \"https://repo.maven.apache.org/maven2/org/springframework/boot/spring-boot-starter-parent/maven-metadata.xml\")",
+      "Bash(mvn test *)"
+    ]
+  },
+  "enabledMcpjsonServers": [
+    "spectral"
+  ]
 }

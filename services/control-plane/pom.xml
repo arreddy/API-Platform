@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.2.3</version>
+    <version>4.0.5</version>
     <relativePath/>
   </parent>
 
@@ -19,10 +19,9 @@
 
   <properties>
     <java.version>21</java.version>
-    <lombok.version>1.18.46</lombok.version>
+    <lombok.version>1.18.44</lombok.version>
     <swagger-parser.version>2.1.22</swagger-parser.version>
     <java-jwt.version>4.4.0</java-jwt.version>
-    <hypersistence.version>3.7.3</hypersistence.version>
     <datafaker.version>2.1.0</datafaker.version>
   </properties>
 
@@ -55,12 +54,9 @@
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-core</artifactId>
     </dependency>
-
-    <!-- Hypersistence for JSONB support -->
     <dependency>
-      <groupId>io.hypersistence</groupId>
-      <artifactId>hypersistence-utils-hibernate-63</artifactId>
-      <version>${hypersistence.version}</version>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-database-postgresql</artifactId>
     </dependency>
 
     <!-- OAS validation -->
@@ -68,6 +64,13 @@
       <groupId>io.swagger.parser.v3</groupId>
       <artifactId>swagger-parser</artifactId>
       <version>${swagger-parser.version}</version>
+    </dependency>
+    <!-- Force swagger-core to the version springdoc-openapi 3.0.3 expects;
+         swagger-parser 2.1.22 pulls in 2.2.21 which lacks PrimitiveType.explicitObjectType -->
+    <dependency>
+      <groupId>io.swagger.core.v3</groupId>
+      <artifactId>swagger-core</artifactId>
+      <version>2.2.47</version>
     </dependency>
 
     <!-- YAML support -->
@@ -100,7 +103,7 @@
     <dependency>
       <groupId>org.springdoc</groupId>
       <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-      <version>2.3.0</version>
+      <version>3.0.3</version>
     </dependency>
     <!-- JAXB stub: swagger-core references javax.xml.bind which was removed in Java 11 -->
     <dependency>
@@ -120,6 +123,14 @@
       <groupId>com.openai</groupId>
       <artifactId>openai-java</artifactId>
       <version>2.1.0</version>
+      <exclusions>
+        <!-- Kotlin module triggers springdoc's KotlinObjectMapperProvider which fails
+             with a reflection error against the swagger-core version on the classpath -->
+        <exclusion>
+          <groupId>com.fasterxml.jackson.module</groupId>
+          <artifactId>jackson-module-kotlin</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <!-- Test -->
@@ -165,7 +176,7 @@
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.13</version>
+        <version>0.8.14</version>
         <executions>
           <execution>
             <id>prepare-agent</id>

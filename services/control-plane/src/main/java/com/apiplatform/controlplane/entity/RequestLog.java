@@ -1,13 +1,13 @@
 package com.apiplatform.controlplane.entity;
 
 import com.apiplatform.controlplane.converter.UuidStringConverter;
-import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.UUID;
 import lombok.*;
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "request_logs")
@@ -39,7 +39,7 @@ public class RequestLog {
   @Column(nullable = false, columnDefinition = "text")
   private String path;
 
-  @Type(JsonType.class)
+  @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "query_params", columnDefinition = "jsonb")
   private Map<String, Object> queryParams;
 

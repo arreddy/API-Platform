@@ -2,6 +2,7 @@ package com.apiplatform.controlplane.controller;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -9,28 +10,54 @@ import com.apiplatform.controlplane.dto.PageDto;
 import com.apiplatform.controlplane.dto.ProxyDto;
 import com.apiplatform.controlplane.entity.Proxy;
 import com.apiplatform.controlplane.exception.AppException;
+import com.apiplatform.controlplane.exception.GlobalExceptionHandler;
 import com.apiplatform.controlplane.service.ProxyService;
 import com.apiplatform.controlplane.support.WithMockApiPrincipal;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
+import org.springframework.boot.http.converter.autoconfigure.HttpMessageConvertersAutoConfiguration;
+import org.springframework.boot.jackson.autoconfigure.JacksonAutoConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.validation.autoconfigure.ValidationAutoConfiguration;
+import org.springframework.boot.webmvc.autoconfigure.DispatcherServletAutoConfiguration;
+import org.springframework.boot.webmvc.autoconfigure.WebMvcAutoConfiguration;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
-@WebMvcTest(ProxyController.class)
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.MOCK,
+    classes = {ProxyController.class, GlobalExceptionHandler.class})
+@ImportAutoConfiguration({
+  DispatcherServletAutoConfiguration.class,
+  WebMvcAutoConfiguration.class,
+  JacksonAutoConfiguration.class,
+  HttpMessageConvertersAutoConfiguration.class,
+  ValidationAutoConfiguration.class
+})
 @Import(TestSecurityConfig.class)
 class ProxyControllerTest {
 
-  @Autowired MockMvc mockMvc;
-  @Autowired ObjectMapper objectMapper;
-  @MockBean ProxyService proxyService;
+  @Autowired WebApplicationContext wac;
+  final ObjectMapper objectMapper = new ObjectMapper();
+  MockMvc mockMvc;
+
+  @MockitoBean ProxyService proxyService;
+
+  @BeforeEach
+  void setUp() {
+    mockMvc = MockMvcBuilders.webAppContextSetup(wac).apply(springSecurity()).build();
+  }
 
   private static final String TENANT = "00000000-0000-0000-0000-000000000001";
   private static final String PROXY_ID = UUID.randomUUID().toString();
@@ -205,7 +232,7 @@ class ProxyControllerTest {
     mockMvc
         .perform(
             get("/api/v1/proxies/_internal/active")
-                .header("X-Internal-Token", "internal-dev-token")) // matches application.yml default
+                .header("X-Internal-Token", "internal-dev-token"))
         .andExpect(status().isOk());
   }
 

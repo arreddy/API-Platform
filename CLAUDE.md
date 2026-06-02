@@ -6,9 +6,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 | Service | Tech | Port |
 |---|---|---|
-| Control Plane | Spring Boot 3.2, Java 21 | 3001 |
+| Control Plane | Spring Boot 4.0, Java 21 | 3001 |
 | Gateway | Spring Cloud Gateway (reactive) | 3000 |
-| Mock Server | Spring Boot 3.2, Java 21 | 3002 |
+| Mock Server | Spring Boot 4.0, Java 21 | 3002 |
 | Developer Portal | React 18, Vite, TypeScript | 3003 |
 | OAS Analyzer | Node.js 20, Express | 3004 |
 | PostgreSQL | 16 | 5432 |

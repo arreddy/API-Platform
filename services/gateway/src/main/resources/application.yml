@@ -29,10 +29,6 @@ spring:
         pool:
           max-active: 10
 
-  jackson:
-    serialization:
-      write-dates-as-timestamps: false
-
 app:
   control-plane-url: ${CONTROL_PLANE_URL:http://localhost:3001}
   internal-token: ${INTERNAL_TOKEN:internal-dev-token}

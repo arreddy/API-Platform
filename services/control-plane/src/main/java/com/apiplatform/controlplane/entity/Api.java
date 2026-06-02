@@ -1,14 +1,14 @@
 package com.apiplatform.controlplane.entity;
 
 import com.apiplatform.controlplane.converter.UuidStringConverter;
-import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import lombok.*;
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "apis")
@@ -43,24 +43,24 @@ public class Api {
   @Builder.Default
   private String oasVersion = "3.0";
 
-  @Type(JsonType.class)
+  @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "oas_document", columnDefinition = "jsonb", nullable = false)
   private Map<String, Object> oasDocument;
 
   @Column(name = "base_path")
   private String basePath;
 
-  @Type(JsonType.class)
+  @JdbcTypeCode(SqlTypes.JSON)
   @Column(columnDefinition = "jsonb", nullable = false)
   @Builder.Default
   private List<Map<String, Object>> servers = List.of();
 
-  @Type(JsonType.class)
+  @JdbcTypeCode(SqlTypes.JSON)
   @Column(columnDefinition = "jsonb", nullable = false)
   @Builder.Default
   private List<Map<String, Object>> endpoints = List.of();
 
-  @Type(JsonType.class)
+  @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "security_schemes", columnDefinition = "jsonb", nullable = false)
   @Builder.Default
   private Map<String, Object> securitySchemes = Map.of();

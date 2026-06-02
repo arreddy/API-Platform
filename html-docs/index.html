@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Management Platform — Documentation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #0f1117;
+      --bg-surface: #181c27;
+      --bg-card:    #1e2333;
+      --border:     #2a3050;
+      --accent:     #4f7df0;
+      --accent-dim: #2a3f7a;
+      --success:    #22c55e;
+      --warn:       #f59e0b;
+      --danger:     #ef4444;
+      --hint:       #8b5cf6;
+      --text:       #e2e8f0;
+      --text-dim:   #94a3b8;
+      --text-muted: #64748b;
+      --code-bg:    #111827;
+      --sidebar-w:  260px;
+    }
+
+    html { font-size: 15px; scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ── */
+    #sidebar {
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      width: var(--sidebar-w);
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar-logo {
+      padding: 24px 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-logo .product-name {
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .sidebar-logo h1 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-top: 2px;
+      line-height: 1.3;
+    }
+    .sidebar-version {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 0.7rem;
+      background: var(--accent-dim);
+      color: var(--accent);
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+    nav { flex: 1; padding: 12px 0 24px; }
+    .nav-section {
+      padding: 16px 20px 4px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .nav-link {
+      display: block;
+      padding: 7px 20px;
+      font-size: 0.875rem;
+      color: var(--text-dim);
+      text-decoration: none;
+      border-left: 3px solid transparent;
+      transition: color .15s, background .15s, border-color .15s;
+      cursor: pointer;
+    }
+    .nav-link:hover { color: var(--text); background: rgba(79,125,240,.07); }
+    .nav-link.active {
+      color: var(--accent);
+      border-left-color: var(--accent);
+      background: rgba(79,125,240,.1);
+      font-weight: 500;
+    }
+    .nav-sub {
+      display: block;
+      padding: 5px 20px 5px 36px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color .15s;
+      cursor: pointer;
+    }
+    .nav-sub:hover { color: var(--text-dim); }
+
+    /* ── Main ── */
+    #main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      min-width: 0;
+    }
+    .topbar {
+      position: sticky;
+      top: 0;
+      background: rgba(15,17,23,.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 40px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      z-index: 50;
+    }
+    .topbar-breadcrumb {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .topbar-breadcrumb span { color: var(--text-dim); }
+    .topbar-title { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+
+    /* ── Page sections ── */
+    .page { display: none; padding: 48px 40px 80px; max-width: 900px; }
+    .page.active { display: block; }
+
+    h2.page-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+    .page-desc {
+      font-size: 1rem;
+      color: var(--text-dim);
+      margin-bottom: 40px;
+      line-height: 1.6;
+    }
+    h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin: 36px 0 12px;
+      color: var(--text);
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 24px 0 8px;
+      color: var(--text);
+    }
+    p { line-height: 1.75; color: var(--text-dim); margin-bottom: 14px; }
+    ul, ol { padding-left: 20px; margin-bottom: 14px; }
+    li { line-height: 1.7; color: var(--text-dim); margin-bottom: 3px; }
+    strong { color: var(--text); font-weight: 600; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Code ── */
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      overflow-x: auto;
+      margin: 16px 0;
+      position: relative;
+    }
+    pre code {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 0.82rem;
+      color: #a5f3c0;
+      line-height: 1.65;
+    }
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82em;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 6px;
+      color: #f9a8d4;
+    }
+    pre code { background: none; border: none; padding: 0; color: inherit; }
+    .lang-tag {
+      position: absolute;
+      top: 10px;
+      right: 14px;
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    /* ── Tables ── */
+    .table-wrap { overflow-x: auto; margin: 16px 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    thead tr { background: var(--bg-card); }
+    th {
+      text-align: left;
+      padding: 10px 14px;
+      font-weight: 600;
+      color: var(--text);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(42,48,80,.5);
+      color: var(--text-dim);
+      vertical-align: top;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(79,125,240,.04); }
+
+    /* Method badges */
+    .method {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      letter-spacing: .04em;
+    }
+    .method-get    { background: rgba(34,197,94,.15);  color: #22c55e; }
+    .method-post   { background: rgba(79,125,240,.15); color: #4f7df0; }
+    .method-put    { background: rgba(245,158,11,.15); color: #f59e0b; }
+    .method-delete { background: rgba(239,68,68,.15);  color: #ef4444; }
+
+    /* Severity badges */
+    .badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 12px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .badge-error   { background: rgba(239,68,68,.15);  color: #ef4444; }
+    .badge-warn    { background: rgba(245,158,11,.15); color: #f59e0b; }
+    .badge-info    { background: rgba(79,125,240,.15); color: #4f7df0; }
+    .badge-hint    { background: rgba(139,92,246,.15); color: #8b5cf6; }
+    .badge-green   { background: rgba(34,197,94,.15);  color: #22c55e; }
+
+    /* ── Cards ── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+      margin: 24px 0;
+    }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      transition: border-color .2s;
+    }
+    .card:hover { border-color: var(--accent-dim); }
+    .card-icon { font-size: 1.5rem; margin-bottom: 10px; }
+    .card h4 { margin: 0 0 6px; font-size: 0.95rem; }
+    .card p  { font-size: 0.83rem; margin: 0; }
+
+    /* ── Feature list ── */
+    .feature-list { list-style: none; padding: 0; }
+    .feature-list li { display: flex; align-items: flex-start; gap: 10px; padding: 6px 0; }
+    .feature-list li::before { content: '✓'; color: var(--success); font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+
+    /* ── Service topology ── */
+    .service-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px;
+      margin: 24px 0;
+    }
+    .service-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 20px;
+    }
+    .service-card .port {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      background: var(--accent-dim);
+      color: var(--accent);
+      padding: 2px 8px;
+      border-radius: 20px;
+      margin-bottom: 8px;
+    }
+    .service-card h4 { margin: 0 0 6px; }
+    .service-card p  { font-size: 0.83rem; margin: 0; }
+    .service-card .tech { font-size: 0.72rem; color: var(--text-muted); margin-top: 8px; }
+
+    /* ── Architecture diagram ── */
+    .arch-diagram {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+      overflow-x: auto;
+      white-space: pre;
+      margin: 20px 0;
+    }
+
+    /* ── Callout ── */
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: rgba(79,125,240,.08);
+      border-radius: 0 8px 8px 0;
+      padding: 14px 18px;
+      margin: 16px 0;
+    }
+    .callout.warn { border-left-color: var(--warn); background: rgba(245,158,11,.08); }
+    .callout.danger { border-left-color: var(--danger); background: rgba(239,68,68,.08); }
+    .callout p { margin: 0; font-size: 0.88rem; }
+    .callout strong { display: block; margin-bottom: 4px; }
+
+    /* ── Steps ── */
+    .steps { counter-reset: step; list-style: none; padding: 0; }
+    .steps li {
+      counter-increment: step;
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+      align-items: flex-start;
+    }
+    .steps li::before {
+      content: counter(step);
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.8rem;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .steps li > div { flex: 1; }
+    .steps li > div h4 { margin-top: 0; border-bottom: none; }
+
+    /* ── Checklist ── */
+    .checklist { list-style: none; padding: 0; }
+    .checklist li { padding: 5px 0; display: flex; gap: 10px; align-items: flex-start; }
+    .checklist li .ck { color: var(--success); flex-shrink: 0; margin-top: 2px; }
+
+    /* ── Endpoint block ── */
+    .endpoint {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin: 8px 0;
+      font-size: 0.875rem;
+    }
+    .endpoint-path {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text);
+      flex: 1;
+    }
+    .endpoint-desc { color: var(--text-dim); font-size: 0.82rem; }
+
+    /* ── Port table ── */
+    .port-row td:nth-child(2) {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent);
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-surface); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent-dim); }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      :root { --sidebar-w: 0px; }
+      #sidebar { transform: translateX(-260px); width: 260px; transition: transform .3s; }
+      #sidebar.open { transform: translateX(0); --sidebar-w: 260px; }
+      #main { margin-left: 0; }
+      .page { padding: 32px 20px 60px; }
+      .topbar { padding: 12px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════ SIDEBAR ══════════════════════════════════════════ -->
+<aside id="sidebar">
+  <div class="sidebar-logo">
+    <div class="product-name">API Platform</div>
+    <h1>Documentation</h1>
+    <span class="sidebar-version">v1.0 · May 2026</span>
+  </div>
+  <nav>
+    <div class="nav-section">Overview</div>
+    <a class="nav-link active" onclick="show('home',this)">Home</a>
+    <a class="nav-link" onclick="show('architecture',this)">Architecture</a>
+
+    <div class="nav-section">Getting Started</div>
+    <a class="nav-link" onclick="show('quickstart',this)">Quick Start</a>
+    <a class="nav-link" onclick="show('guide',this)">API &amp; Proxy Guide</a>
+
+    <div class="nav-section">Reference</div>
+    <a class="nav-link" onclick="show('apiref',this)">API Reference</a>
+    <a class="nav-sub" onclick="show('apiref',this);scrollTo('ref-apis')">› OAS Registration</a>
+    <a class="nav-sub" onclick="show('apiref',this);scrollTo('ref-proxies')">› Proxies</a>
+    <a class="nav-sub" onclick="show('apiref',this);scrollTo('ref-keys')">› API Keys</a>
+    <a class="nav-sub" onclick="show('apiref',this);scrollTo('ref-analytics')">› Analytics</a>
+    <a class="nav-sub" onclick="show('apiref',this);scrollTo('ref-oas-analyzer')">› OAS Analyzer</a>
+    <a class="nav-sub" onclick="show('apiref',this);scrollTo('ref-gateway')">› Gateway</a>
+    <a class="nav-sub" onclick="show('apiref',this);scrollTo('ref-mock')">› Mock Server</a>
+
+    <div class="nav-section">Operations</div>
+    <a class="nav-link" onclick="show('deployment',this)">Deployment</a>
+  </nav>
+</aside>
+
+<!-- ═══════════════════════════════════════════ MAIN ═══════════════════════════════════════════ -->
+<main id="main">
+  <div class="topbar">
+    <div>
+      <div class="topbar-breadcrumb">API Management Platform <span>/ Docs</span></div>
+    </div>
+  </div>
+
+  <!-- ══════════ HOME ══════════ -->
+  <section class="page active" id="page-home">
+    <h2 class="page-title">API Management Platform</h2>
+    <p class="page-desc">
+      A production-ready, microservices-based platform supporting the full API lifecycle —
+      from OpenAPI specification registration to dynamic proxying, rate limiting, analytics, and developer self-service.
+    </p>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon">🗂</div>
+        <h4>OAS Management</h4>
+        <p>Register, validate, and version OpenAPI 3.0/3.1 specifications with automated linting and AI scoring.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔀</div>
+        <h4>Dynamic Proxy Routing</h4>
+        <p>Create gateway proxies with full version history, one-click rollback, and longest-prefix matching.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔑</div>
+        <h4>API Key Auth</h4>
+        <p>Generate bcrypt-hashed API keys. Raw key shown once. Revocable with per-key rate limiting.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">⚡</div>
+        <h4>Rate Limiting</h4>
+        <p>Redis-backed sliding window rate limiting with in-memory fallback and standard response headers.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📊</div>
+        <h4>Analytics</h4>
+        <p>Time series traffic, P99 latency, status distribution — backed by a partitioned PostgreSQL table.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🤖</div>
+        <h4>OAS Analyzer</h4>
+        <p>Spectral linting + GPT-4o AI scoring on every API registration. Best-effort — never blocks.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🎭</div>
+        <h4>Mock Server</h4>
+        <p>OAS-driven fake response generation using Datafaker. Supports inline and proxy-based mocking.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🏢</div>
+        <h4>Multi-Tenancy</h4>
+        <p>All resources scoped by tenant ID. Complete isolation across APIs, proxies, keys, and analytics.</p>
+      </div>
+    </div>
+
+    <h3>Services at a Glance</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Service</th><th>Technology</th><th>Port</th><th>Purpose</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Developer Portal</strong></td><td>React 18, Vite, TypeScript</td><td><code>3003</code></td><td>Web UI for all platform operations</td></tr>
+          <tr><td><strong>Control Plane</strong></td><td>Spring Boot 3.2, Java 21</td><td><code>3001</code></td><td>Central management API</td></tr>
+          <tr><td><strong>API Gateway</strong></td><td>Spring Cloud Gateway</td><td><code>3000</code></td><td>Dynamic routing, auth, rate limiting</td></tr>
+          <tr><td><strong>Mock Server</strong></td><td>Spring Boot 3.2, Java 21</td><td><code>3002</code></td><td>OAS-driven fake response generation</td></tr>
+          <tr><td><strong>OAS Analyzer</strong></td><td>Node.js 20, Express</td><td><code>3004</code></td><td>Spectral lint + AI scoring</td></tr>
+          <tr><td><strong>PostgreSQL</strong></td><td>PostgreSQL 16</td><td><code>5432</code></td><td>Primary persistence store</td></tr>
+          <tr><td><strong>Redis</strong></td><td>Redis 7</td><td><code>6379</code></td><td>Rate limit state, gateway caching</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Implemented Features</h3>
+    <ul class="feature-list">
+      <li>OAS 3.0/3.1 upload, validation, and metadata extraction</li>
+      <li>Proxy CRUD with full version history and one-click rollback</li>
+      <li>Per-proxy policies: rate limiting, API key auth, JWT auth, CORS</li>
+      <li>Dynamic gateway routing with longest-prefix match</li>
+      <li>API key generation with bcrypt hashing (raw key shown once)</li>
+      <li>Redis-backed sliding window rate limiting (falls back to in-memory)</li>
+      <li>Batched request logging to analytics store (PostgreSQL partitioned table)</li>
+      <li>Analytics dashboard: time series, P99 latency, status distribution</li>
+      <li>OAS-driven mock server with schema-aware fake data generation</li>
+      <li>Swagger UI embedded in the developer portal</li>
+      <li>Multi-tenancy support (tenant isolation on all resources)</li>
+      <li>Developer portal with full CRUD UI for all entities</li>
+      <li>Docker Compose for local development</li>
+      <li>Kubernetes manifests with HPA for auto-scaling</li>
+      <li>GitHub Actions CI/CD pipeline</li>
+    </ul>
+  </section>
+
+  <!-- ══════════ ARCHITECTURE ══════════ -->
+  <section class="page" id="page-architecture">
+    <h2 class="page-title">Architecture</h2>
+    <p class="page-desc">
+      The platform is built as a microservices system with a React developer portal, Spring Boot control plane,
+      reactive gateway, mock server, and a stateless Node.js OAS analyzer.
+    </p>
+
+    <h3>System Diagram</h3>
+    <div class="arch-diagram">┌─────────────────────────────────────────────────────────┐
+│                    Developer Portal                      │
+│              React + TypeScript  (port 3003)             │
+└───────────────────────┬─────────────────────────────────┘
+                        │ REST /api/v1/*
+┌───────────────────────▼─────────────────────────────────┐
+│                   Control Plane                          │
+│          Spring Boot + Java 21  (port 3001)              │
+│  • API registration &amp; OAS validation                     │
+│  • Proxy CRUD + version history                          │
+│  • API key management                                    │
+│  • Analytics ingestion &amp; queries                         │
+│  • Calls OAS Analyzer after every API registration       │
+└──────┬──────────────────────────────┬────────────────────┘
+       │ PostgreSQL                   │ Internal REST
+┌──────▼──────┐               ┌───────▼──────────────────┐
+│  PostgreSQL  │               │        Gateway            │
+│  (port 5432) │               │  Spring Cloud Gateway     │
+└─────────────┘               │  (port 3000)              │
+                               │  • Dynamic proxy routing  │
+┌─────────────┐               │  • API key auth           │
+│    Redis     │◄──────────────│  • Rate limiting (Redis)  │
+│  (port 6379) │               │  • Request logging        │
+└─────────────┘               └──────┬────────────────────┘
+                                      │ HTTP proxy
+┌─────────────────────────────────────▼──────────────────┐
+│                  Mock Server (port 3002)                 │
+│     Spring Boot — OAS-driven fake response generation   │
+└─────────────────────────────────────────────────────────┘
+
+                         ┌──────────────────────────────┐
+                         │     OAS Analyzer (port 3004) │
+                         │  Node.js / Express           │
+                         │  Spectral lint + AI scoring  │
+                         └──────────────────────────────┘</div>
+
+    <h3>Services</h3>
+    <div class="service-grid">
+      <div class="service-card">
+        <span class="port">:3003</span>
+        <h4>Developer Portal</h4>
+        <p>React + TypeScript SPA. Provides API registration, proxy management, analytics dashboards, and developer self-service.</p>
+        <div class="tech">React 18 · Vite · Axios · nginx (Docker)</div>
+      </div>
+      <div class="service-card">
+        <span class="port">:3001</span>
+        <h4>Control Plane</h4>
+        <p>Authoritative management API. Handles OAS registration, proxy lifecycle, API key management, analytics ingestion, and configuration persistence.</p>
+        <div class="tech">Spring Boot 3.2 · Java 21 · PostgreSQL · Flyway · Hibernate</div>
+      </div>
+      <div class="service-card">
+        <span class="port">:3000</span>
+        <h4>API Gateway</h4>
+        <p>Fully reactive routing layer. Implements dynamic request routing, API key auth, rate limiting, and request logging.</p>
+        <div class="tech">Spring Cloud Gateway · WebFlux · Redis</div>
+      </div>
+      <div class="service-card">
+        <span class="port">:3002</span>
+        <h4>Mock Server</h4>
+        <p>Stateless service that generates mock responses using OAS definitions. Supports inline and proxy-based endpoints.</p>
+        <div class="tech">Spring Boot 3.2 · Java 21 · Datafaker · Caffeine cache</div>
+      </div>
+      <div class="service-card">
+        <span class="port">:3004</span>
+        <h4>OAS Analyzer</h4>
+        <p>Stateless Node.js service. Accepts an OAS document and returns Spectral lint results and GPT-4o AI analysis.</p>
+        <div class="tech">Node.js 20 · Express · Spectral · OpenAI gpt-4o</div>
+      </div>
+    </div>
+
+    <h3>OAS Analysis Pipeline</h3>
+    <div class="arch-diagram">POST /api/v1/apis  (multipart or JSON)
+        │
+        ▼
+OasValidatorService   ← parses &amp; validates OAS with swagger-parser
+        │
+        ▼
+ApiRegistryService    ← saves Api entity to PostgreSQL
+        │
+        ▼
+OasAnalysisService    ← calls OAS Analyzer (best-effort, async)
+        │
+   ┌────┴────┐
+   ▼         ▼
+Spectral    OpenAI gpt-4o
+(always)    (if OPENAI_API_KEY set)
+   │         │
+   └────┬────┘
+        ▼
+  oas_insights (PostgreSQL)</div>
+
+    <h3>Data Flow</h3>
+    <ol style="line-height:2; color:var(--text-dim); padding-left:20px;">
+      <li>The developer portal sends API registration, proxy creation, and analytics queries to the Control Plane.</li>
+      <li>The Control Plane stores configuration in PostgreSQL and exposes management APIs.</li>
+      <li>After registering an API, the Control Plane calls the OAS Analyzer to lint the OAS document and score it with AI. The result is stored in <code>oas_insights</code> and returned in the registration response.</li>
+      <li>The Gateway consults the Control Plane via internal token to build routing and enforce policies.</li>
+      <li>The Mock Server reads OAS definitions from the Control Plane to generate fake responses.</li>
+      <li>The Gateway logs request data into the Control Plane analytics pipeline (buffered, every 5 s or 100 entries).</li>
+    </ol>
+
+    <h3>Gateway Request Pipeline</h3>
+    <p>For each incoming request, the gateway executes these filters in order:</p>
+    <ol style="line-height:2; color:var(--text-dim); padding-left:20px;">
+      <li><strong>dynamicRouteLocator</strong> — matches longest-prefix, rewrites path, sets <code>proxy</code> exchange attribute.</li>
+      <li><strong>ApiKeyAuthFilter</strong> — if <code>authType=api_key</code>, extracts <code>X-Api-Key</code>, calls Control Plane to validate (60s in-memory cache).</li>
+      <li><strong>RateLimitFilter</strong> — sliding window via Redis (<code>rl:{proxyId}:{keyId}:{slot}</code>). Adds <code>X-RateLimit-Limit</code> / <code>X-RateLimit-Remaining</code>.</li>
+      <li><strong>RequestLogFilter</strong> — global, buffers entries, flushes every 5 s or at 100 entries.</li>
+    </ol>
+
+    <h3>Infrastructure</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Dependency</th><th>Version</th><th>Used For</th></tr></thead>
+        <tbody>
+          <tr><td>PostgreSQL</td><td>16</td><td>All persistent data: APIs, proxies, keys, analytics, OAS insights. <code>request_logs</code> is range-partitioned by year.</td></tr>
+          <tr><td>Redis</td><td>7</td><td>Gateway rate limit state (sliding window counters) and auth result caching.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ══════════ QUICK START ══════════ -->
+  <section class="page" id="page-quickstart">
+    <h2 class="page-title">Quick Start</h2>
+    <p class="page-desc">Get the full platform running in minutes with Docker Compose, or run services individually for local development.</p>
+
+    <h3>Prerequisites</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Tool</th><th>Version</th><th>Required For</th></tr></thead>
+        <tbody>
+          <tr><td>Docker &amp; Docker Compose</td><td>Latest</td><td>All services</td></tr>
+          <tr><td>Java &amp; Maven</td><td>Java 21+, Maven 3.9+</td><td>Backend services (local dev)</td></tr>
+          <tr><td>Node.js</td><td>20+</td><td>Developer Portal, OAS Analyzer</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Option A — Docker Compose (Recommended)</h3>
+    <ol class="steps">
+      <li>
+        <div>
+          <h4>Clone &amp; configure</h4>
+          <pre><span class="lang-tag">bash</span><code>git clone https://github.com/arreddy/API-Platform.git
+cd API-Platform
+cp .env.example .env
+# Edit .env with your secrets</code></pre>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h4>(Optional) Set OpenAI key for AI scoring</h4>
+          <pre><span class="lang-tag">bash</span><code>echo "OPENAI_API_KEY=sk-proj-..." >> .env</code></pre>
+          <p>Spectral linting always runs. AI scoring requires the key.</p>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h4>Start all services</h4>
+          <pre><span class="lang-tag">bash</span><code>npm run docker:up</code></pre>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h4>Verify services are running</h4>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Service</th><th>URL</th></tr></thead>
+              <tbody>
+                <tr><td>Developer Portal</td><td><code>http://localhost:3003</code></td></tr>
+                <tr><td>API Gateway</td><td><code>http://localhost:3000</code></td></tr>
+                <tr><td>Control Plane</td><td><code>http://localhost:3001</code></td></tr>
+                <tr><td>Mock Server</td><td><code>http://localhost:3002</code></td></tr>
+                <tr><td>OAS Analyzer</td><td><code>http://localhost:3004/health</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </li>
+    </ol>
+
+    <h3>Stop Services</h3>
+    <pre><span class="lang-tag">bash</span><code>npm run docker:down          # stop containers
+docker compose down -v       # stop + wipe DB volumes</code></pre>
+
+    <h3>Option B — Native Local Development</h3>
+    <p>Start just the infrastructure (DB + Redis), then run each service in its own terminal.</p>
+
+    <pre><span class="lang-tag">bash</span><code># Infrastructure only (PostgreSQL + Redis)
+npm run dev:infra
+
+# Terminal 1 — Control Plane → :3001
+npm run dev:cp
+# or: cd services/control-plane && mvn spring-boot:run
+
+# Terminal 2 — API Gateway → :3000
+npm run dev:gateway
+
+# Terminal 3 — Mock Server → :3002
+npm run dev:mock
+
+# Terminal 4 — OAS Analyzer → :3004
+cd services/oas-analyzer
+npm ci && OPENAI_API_KEY=sk-proj-... npm run dev
+
+# Terminal 5 — Developer Portal → :3003
+npm run dev:portal</code></pre>
+
+    <h3>Build Commands</h3>
+    <pre><span class="lang-tag">bash</span><code># Build everything
+npm run build:all
+
+# Individual services
+npm run build:cp       # Control Plane JAR
+npm run build:gw       # Gateway JAR
+npm run build:mock     # Mock Server JAR
+npm run build:portal   # React static build</code></pre>
+
+    <div class="callout warn">
+      <p><strong>Security</strong> Never commit <code>OPENAI_API_KEY</code> or other secrets to source control. Use <code>.env</code> (already gitignored) or export in your shell.</p>
+    </div>
+  </section>
+
+  <!-- ══════════ GUIDE ══════════ -->
+  <section class="page" id="page-guide">
+    <h2 class="page-title">API &amp; Proxy Creation Guide</h2>
+    <p class="page-desc">Step-by-step walkthrough for registering your first API and setting up a proxy with policies.</p>
+
+    <h3>Creating an API</h3>
+    <ol class="steps">
+      <li>
+        <div>
+          <h4>Register Your API</h4>
+          <p>Navigate to <strong>APIs → Register New API</strong> in the Developer Portal. Upload an OpenAPI 3.0/3.1 specification file or paste JSON/YAML directly.</p>
+          <pre><span class="lang-tag">curl</span><code># Via file upload
+curl -X POST http://localhost:3001/api/v1/apis \
+  -F "oas=@petstore.yaml"
+
+# Via JSON body
+curl -X POST http://localhost:3001/api/v1/apis \
+  -H "Content-Type: application/json" \
+  -d '{"oas": {"openapi":"3.0.0","info":{"title":"My API","version":"1.0.0"},"paths":{}}}'</code></pre>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h4>Review OAS Analysis Results</h4>
+          <p>The registration response includes <code>insights</code> from the OAS Analyzer: Spectral violations and an AI quality score (0–100).</p>
+          <pre><span class="lang-tag">json</span><code>{
+  "api": { "id": "...", "name": "pet-api", "status": "active" },
+  "insights": {
+    "spectral": {
+      "errorCount": 0,
+      "warningCount": 3,
+      "violations": [{ "code": "info-contact", "severity": "warning" }]
+    },
+    "ai": {
+      "score": 72,
+      "summary": "Reasonable structure but lacks contact info and descriptions.",
+      "risks": [],
+      "suggestions": []
+    }
+  }
+}</code></pre>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h4>Configure Authentication</h4>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Method</th><th>Config</th></tr></thead>
+              <tbody>
+                <tr><td><strong>API Key</strong></td><td>Type: API Key · Location: Header · Header: <code>X-Api-Key</code></td></tr>
+                <tr><td><strong>JWT</strong></td><td>Validate via JWT secret configured in Control Plane</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h4>Apply Rate Limiting</h4>
+          <pre><span class="lang-tag">json</span><code>"policies": {
+  "rateLimit": { "enabled": true, "requests": 100, "window": "1m" }
+}</code></pre>
+        </div>
+      </li>
+    </ol>
+
+    <h3>Setting Up a Proxy</h3>
+    <ol class="steps">
+      <li>
+        <div>
+          <h4>Create the Proxy</h4>
+          <pre><span class="lang-tag">curl</span><code>curl -X POST http://localhost:3001/api/v1/proxies \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "petstore-proxy",
+    "targetUrl": "https://petstore3.swagger.io/api/v3",
+    "pathPrefix": "/petstore",
+    "stripPrefix": true,
+    "policies": {
+      "rateLimit": { "enabled": true, "requests": 100, "window": "1m" },
+      "auth": { "type": "api_key" }
+    }
+  }'</code></pre>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h4>Update the Proxy (auto-versions)</h4>
+          <pre><span class="lang-tag">curl</span><code>curl -X PUT http://localhost:3001/api/v1/proxies/&lt;id&gt; \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "petstore-proxy",
+    "targetUrl": "https://petstore3.swagger.io/api/v3",
+    "pathPrefix": "/petstore",
+    "stripPrefix": true,
+    "policies": {
+      "rateLimit": { "enabled": true, "requests": 200, "window": "1m" },
+      "auth": { "type": "api_key" }
+    },
+    "changeNote": "Increase rate limit to 200 req/min"
+  }'</code></pre>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h4>Rollback to a Previous Version</h4>
+          <pre><span class="lang-tag">curl</span><code>curl -X POST http://localhost:3001/api/v1/proxies/&lt;id&gt;/rollback/&lt;version&gt;</code></pre>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h4>Call Through the Gateway</h4>
+          <pre><span class="lang-tag">curl</span><code>curl http://localhost:3000/petstore/pet/1 \
+  -H "X-Api-Key: apk_your_key_here"</code></pre>
+        </div>
+      </li>
+    </ol>
+
+    <h3>Configuration Best Practices</h3>
+    <h4>Security</h4>
+    <ul class="checklist">
+      <li><span class="ck">✓</span> Always use HTTPS for backend target URLs</li>
+      <li><span class="ck">✓</span> Rotate API keys regularly (every 90 days)</li>
+      <li><span class="ck">✓</span> Never expose internal headers in responses</li>
+      <li><span class="ck">✓</span> Store <code>OPENAI_API_KEY</code> in a secrets manager in production</li>
+    </ul>
+    <h4>Performance</h4>
+    <ul class="checklist">
+      <li><span class="ck">✓</span> Enable rate limiting on all public proxies</li>
+      <li><span class="ck">✓</span> Set appropriate timeout values (30–60 seconds)</li>
+      <li><span class="ck">✓</span> Monitor backend response times via analytics</li>
+    </ul>
+    <h4>Reliability</h4>
+    <ul class="checklist">
+      <li><span class="ck">✓</span> Use <code>changeNote</code> on every proxy update for a clear version history</li>
+      <li><span class="ck">✓</span> Test rollback before deploying critical policy changes</li>
+      <li><span class="ck">✓</span> Log all errors and anomalies</li>
+    </ul>
+
+    <h3>Common Issues</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Error</th><th>Cause</th><th>Solution</th></tr></thead>
+        <tbody>
+          <tr><td><code>502 Bad Gateway</code></td><td>Backend unavailable</td><td>Check backend health; verify <code>targetUrl</code></td></tr>
+          <tr><td><code>401 Unauthorized</code></td><td>Invalid or missing API key</td><td>Generate a new API key; check <code>X-Api-Key</code> header</td></tr>
+          <tr><td><code>429 Too Many Requests</code></td><td>Rate limit exceeded</td><td>Wait for the window to reset; increase the limit</td></tr>
+          <tr><td>CORS errors</td><td>Missing CORS headers</td><td>Enable CORS in proxy policies</td></tr>
+          <tr><td>Slow responses</td><td>Backend latency</td><td>Check backend performance; review analytics P99</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ══════════ API REFERENCE ══════════ -->
+  <section class="page" id="page-apiref">
+    <h2 class="page-title">API Reference</h2>
+    <p class="page-desc">Complete endpoint reference for all services. In dev mode (<code>DEV_MODE=true</code>) no auth headers are required.</p>
+
+    <div class="callout">
+      <p><strong>Base URL</strong> Control Plane: <code>http://localhost:3001/api/v1</code></p>
+    </div>
+
+    <!-- OAS Registration -->
+    <h3 id="ref-apis">OAS Registration</h3>
+    <div class="endpoint"><span class="method method-get">GET</span><span class="endpoint-path">/apis</span><span class="endpoint-desc">List all registered APIs</span></div>
+    <div class="endpoint"><span class="method method-post">POST</span><span class="endpoint-path">/apis</span><span class="endpoint-desc">Register an API via OAS upload (multipart) or JSON/YAML body</span></div>
+    <div class="endpoint"><span class="method method-get">GET</span><span class="endpoint-path">/apis/:id</span><span class="endpoint-desc">Get metadata for a specific API</span></div>
+    <div class="endpoint"><span class="method method-get">GET</span><span class="endpoint-path">/apis/:id/oas</span><span class="endpoint-desc">Download the OpenAPI document (JSON or YAML)</span></div>
+    <div class="endpoint"><span class="method method-put">PUT</span><span class="endpoint-path">/apis/:id</span><span class="endpoint-desc">Update an API or re-upload its OAS</span></div>
+    <div class="endpoint"><span class="method method-delete">DELETE</span><span class="endpoint-path">/apis/:id</span><span class="endpoint-desc">Delete an API</span></div>
+    <div class="endpoint"><span class="method method-post">POST</span><span class="endpoint-path">/apis/validate</span><span class="endpoint-desc">Validate an OAS document without saving</span></div>
+    <div class="endpoint"><span class="method method-get">GET</span><span class="endpoint-path">/apis/:id/insights</span><span class="endpoint-desc">Get the latest Spectral + AI analysis for an API</span></div>
+    <div class="endpoint"><span class="method method-post">POST</span><span class="endpoint-path">/apis/:id/analyze</span><span class="endpoint-desc">Re-run Spectral + AI analysis and update stored insights</span></div>
+
+    <h4>Registration Response</h4>
+    <pre><span class="lang-tag">json</span><code>{
+  "api": {
+    "id": "...",
+    "name": "pet-api",
+    "status": "active",
+    "createdAt": "2026-05-17T08:00:00Z"
+  },
+  "suggested": {
+    "targetUrl": "https://...",
+    "pathPrefix": "/pet-api",
+    "routes": []
+  },
+  "insights": {
+    "apiId": "...",
+    "spectral": {
+      "violations": [
+        { "code": "info-contact", "message": "Info object should contain contact.", "severity": "warning", "path": "info" }
+      ],
+      "errorCount": 0,
+      "warningCount": 3,
+      "infoCount": 0,
+      "hintCount": 1
+    },
+    "ai": {
+      "score": 72,
+      "summary": "Reasonable structure but lacks documentation detail.",
+      "risks": [{ "severity": "high", "category": "security", "description": "..." }],
+      "suggestions": [{ "category": "documentation", "description": "...", "impact": "..." }]
+    },
+    "analyzedAt": "2026-05-17T08:00:00Z"
+  }
+}</code></pre>
+    <p><code>insights</code> is <code>null</code> when the OAS Analyzer is unreachable. Analysis failure never blocks registration.</p>
+
+    <!-- Proxies -->
+    <h3 id="ref-proxies">Proxy Management</h3>
+    <div class="endpoint"><span class="method method-get">GET</span><span class="endpoint-path">/proxies</span><span class="endpoint-desc">List all proxies</span></div>
+    <div class="endpoint"><span class="method method-post">POST</span><span class="endpoint-path">/proxies</span><span class="endpoint-desc">Create a new proxy</span></div>
+    <div class="endpoint"><span class="method method-get">GET</span><span class="endpoint-path">/proxies/:id</span><span class="endpoint-desc">Get proxy details</span></div>
+    <div class="endpoint"><span class="method method-put">PUT</span><span class="endpoint-path">/proxies/:id</span><span class="endpoint-desc">Update proxy configuration (auto-versions)</span></div>
+    <div class="endpoint"><span class="method method-delete">DELETE</span><span class="endpoint-path">/proxies/:id</span><span class="endpoint-desc">Deactivate a proxy</span></div>
+    <div class="endpoint"><span class="method method-get">GET</span><span class="endpoint-path">/proxies/:id/versions</span><span class="endpoint-desc">List proxy version history</span></div>
+    <div class="endpoint"><span class="method method-post">POST</span><span class="endpoint-path">/proxies/:id/rollback/:version</span><span class="endpoint-desc">Roll back proxy to a previous version</span></div>
+
+    <h4>Proxy Create / Update Body</h4>
+    <pre><span class="lang-tag">json</span><code>{
+  "name": "petstore-proxy",
+  "targetUrl": "https://petstore3.swagger.io/api/v3",
+  "pathPrefix": "/petstore",
+  "stripPrefix": true,
+  "policies": {
+    "rateLimit": { "enabled": true, "requests": 100, "window": "1m" },
+    "auth": { "type": "api_key" }
+  },
+  "headers": { "X-Forwarded-Host": "api.example.com" },
+  "changeNote": "Optional change description for version history"
+}</code></pre>
+
+    <!-- API Keys -->
+    <h3 id="ref-keys">API Keys</h3>
+    <div class="endpoint"><span class="method method-get">GET</span><span class="endpoint-path">/keys</span><span class="endpoint-desc">List API keys</span></div>
+    <div class="endpoint"><span class="method method-post">POST</span><span class="endpoint-path">/keys</span><span class="endpoint-desc">Generate a new API key (raw key shown once)</span></div>
+    <div class="endpoint"><span class="method method-delete">DELETE</span><span class="endpoint-path">/keys/:id</span><span class="endpoint-desc">Revoke an API key</span></div>
+
+    <div class="callout warn">
+      <p><strong>One-time raw key</strong> The raw <code>apk_...</code> key is only returned once on creation. Store it securely — it cannot be retrieved again.</p>
+    </div>
+
+    <!-- Analytics -->
+    <h3 id="ref-analytics">Analytics</h3>
+    <div class="endpoint"><span class="method method-get">GET</span><span class="endpoint-path">/analytics/summary</span><span class="endpoint-desc">Traffic summary with time series, P99 latency, status distribution</span></div>
+    <div class="endpoint"><span class="method method-get">GET</span><span class="endpoint-path">/analytics/requests</span><span class="endpoint-desc">Recent request log data</span></div>
+
+    <h4>Summary Query Params</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>proxyId</code></td><td>UUID</td><td>Filter to a specific proxy</td></tr>
+          <tr><td><code>from</code></td><td>ISO-8601</td><td>Start of time range</td></tr>
+          <tr><td><code>to</code></td><td>ISO-8601</td><td>End of time range</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- OAS Analyzer -->
+    <h3 id="ref-oas-analyzer">OAS Analyzer</h3>
+    <p>Stateless service on port <code>3004</code>. Called internally by the Control Plane; also callable directly.</p>
+    <div class="endpoint"><span class="method method-get">GET</span><span class="endpoint-path">/health</span><span class="endpoint-desc">Health check — returns <code>{ "status": "ok" }</code></span></div>
+    <div class="endpoint"><span class="method method-post">POST</span><span class="endpoint-path">/analyze</span><span class="endpoint-desc">Analyze an OAS document with Spectral and AI</span></div>
+
+    <h4>Analyze Request</h4>
+    <pre><span class="lang-tag">curl</span><code>curl -X POST http://localhost:3004/analyze \
+  -H "Content-Type: application/json" \
+  -d '{
+    "oasContent": "openapi: 3.0.0\ninfo:\n  title: My API\n  version: 1.0.0\npaths: {}"
+  }'</code></pre>
+    <p><code>oasContent</code> may be a YAML string, JSON string, or pre-parsed JSON object. Truncated at 48 000 chars before OpenAI.</p>
+
+    <h4>Analyze Response</h4>
+    <pre><span class="lang-tag">json</span><code>{
+  "spectral": {
+    "violations": [
+      {
+        "code": "info-contact",
+        "message": "Info object should contain `contact` object.",
+        "severity": "warning",
+        "path": "info",
+        "start": { "line": 1, "character": 0 }
+      }
+    ],
+    "errorCount": 0,
+    "warningCount": 1,
+    "infoCount": 0,
+    "hintCount": 0
+  },
+  "ai": {
+    "score": 55,
+    "summary": "The API is minimal and missing several production-readiness elements.",
+    "risks": [],
+    "suggestions": []
+  }
+}</code></pre>
+
+    <h4>Severity Levels</h4>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 16px;">
+      <span class="badge badge-error">error</span>
+      <span class="badge badge-warn">warning</span>
+      <span class="badge badge-info">info</span>
+      <span class="badge badge-hint">hint</span>
+    </div>
+
+    <!-- Gateway -->
+    <h3 id="ref-gateway">Gateway</h3>
+    <p>Routes are loaded dynamically from the Control Plane — no static config. The gateway re-fetches all active proxies every 30 seconds.</p>
+    <pre><span class="lang-tag">curl</span><code># Proxy request with API key
+curl http://localhost:3000/petstore/pet/1 \
+  -H "X-Api-Key: apk_your_key_here"</code></pre>
+
+    <h4>Rate Limit Response Headers</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Header</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>X-RateLimit-Limit</code></td><td>Max requests allowed in the window</td></tr>
+          <tr><td><code>X-RateLimit-Remaining</code></td><td>Requests remaining in the current window</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mock Server -->
+    <h3 id="ref-mock">Mock Server</h3>
+    <p>Generates realistic fake responses using the OAS definition linked to a proxy (cached 120 s via Caffeine).</p>
+    <div class="endpoint"><span class="method method-get">GET</span><span class="endpoint-path">/mock/:proxyId/**</span><span class="endpoint-desc">Generate a mock response from the proxy's OAS</span></div>
+    <div class="endpoint"><span class="method method-post">POST</span><span class="endpoint-path">/mock/inline</span><span class="endpoint-desc">Inline mock — provide OAS + path + method directly</span></div>
+
+    <pre><span class="lang-tag">curl</span><code># Proxy-based mock
+curl http://localhost:3002/mock/&lt;proxyId&gt;/pets
+
+# Force a specific status code
+curl "http://localhost:3002/mock/&lt;proxyId&gt;/pets?__status=404"
+
+# Inline mock
+curl -X POST http://localhost:3002/mock/inline \
+  -H "Content-Type: application/json" \
+  -d '{"oasDocument": {...}, "path": "/pets", "method": "GET"}'</code></pre>
+  </section>
+
+  <!-- ══════════ DEPLOYMENT ══════════ -->
+  <section class="page" id="page-deployment">
+    <h2 class="page-title">Deployment</h2>
+    <p class="page-desc">Options for running the platform: Docker Compose for local/dev environments, Kubernetes for production.</p>
+
+    <h3>Docker Compose</h3>
+    <pre><span class="lang-tag">bash</span><code># Start all services (background)
+npm run docker:up
+
+# Start in foreground
+docker compose up --build
+
+# Rebuild a single service
+docker compose up --build portal
+
+# Stop and remove containers
+npm run docker:down
+
+# Stop + wipe database volumes
+docker compose down -v</code></pre>
+
+    <div class="callout">
+      <p><strong>Environment variables</strong> Configure via <code>.env</code> at the repo root. The <code>oas-analyzer</code> service needs <code>OPENAI_API_KEY</code> for AI scoring; Spectral linting always runs without it.</p>
+    </div>
+
+    <h3>Key Environment Variables</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Variable</th><th>Default</th><th>Service</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><code>JWT_SECRET</code></td><td><code>dev-secret-change-in-production</code></td><td>control-plane</td><td>Change in production</td></tr>
+          <tr><td><code>INTERNAL_TOKEN</code></td><td><code>internal-dev-token</code></td><td>all</td><td>Service-to-service auth</td></tr>
+          <tr><td><code>DEV_MODE</code></td><td><code>true</code></td><td>control-plane</td><td>Disables JWT requirement locally</td></tr>
+          <tr><td><code>CORS_ORIGIN</code></td><td><code>*</code></td><td>control-plane</td><td>Restrict in production</td></tr>
+          <tr><td><code>CONTROL_PLANE_URL</code></td><td><code>http://localhost:3001</code></td><td>gateway, mock-server</td><td>Internal service URL</td></tr>
+          <tr><td><code>REDIS_HOST</code></td><td><code>localhost</code></td><td>gateway</td><td></td></tr>
+          <tr><td><code>OAS_ANALYZER_URL</code></td><td><code>http://localhost:3004</code></td><td>control-plane</td><td></td></tr>
+          <tr><td><code>OPENAI_API_KEY</code></td><td><em>none</em></td><td>oas-analyzer</td><td>Required for AI scoring</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Kubernetes Deployment</h3>
+    <p>All manifests live in the <code>k8s/</code> directory.</p>
+
+    <ol class="steps">
+      <li>
+        <div>
+          <h4>Create namespace and secrets</h4>
+          <pre><span class="lang-tag">bash</span><code>kubectl apply -f k8s/namespace.yaml
+# Edit secret values first!
+kubectl apply -f k8s/secrets.yaml</code></pre>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h4>Deploy all services</h4>
+          <pre><span class="lang-tag">bash</span><code>npm run k8s:apply</code></pre>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h4>Verify pods are running</h4>
+          <pre><span class="lang-tag">bash</span><code>kubectl get pods -n api-platform</code></pre>
+        </div>
+      </li>
+    </ol>
+
+    <pre><span class="lang-tag">bash</span><code># Tear down all k8s resources
+npm run k8s:delete</code></pre>
+
+    <h3>Build the Docker Images Locally</h3>
+    <pre><span class="lang-tag">bash</span><code>npm run docker:build</code></pre>
+
+    <h3>Production Readiness Checklist</h3>
+    <ul class="checklist">
+      <li><span class="ck">✓</span> Change all default secrets (<code>JWT_SECRET</code>, <code>INTERNAL_TOKEN</code>)</li>
+      <li><span class="ck">✓</span> Set <code>DEV_MODE=false</code> on the control plane</li>
+      <li><span class="ck">✓</span> Restrict <code>CORS_ORIGIN</code> to known origins</li>
+      <li><span class="ck">✓</span> Use a managed PostgreSQL and Redis for reliability</li>
+      <li><span class="ck">✓</span> Secure gateway and internal service communication with TLS</li>
+      <li><span class="ck">✓</span> Store <code>OPENAI_API_KEY</code> in a secrets manager (Kubernetes Secret, AWS SSM)</li>
+      <li><span class="ck">✓</span> Add yearly <code>request_logs</code> partitions in PostgreSQL as needed</li>
+      <li><span class="ck">✓</span> Configure HPA thresholds appropriate for your traffic profile</li>
+    </ul>
+
+    <div class="callout danger">
+      <p><strong>Never hardcode secrets</strong> Do not put <code>OPENAI_API_KEY</code> or any credential directly in <code>docker-compose.yml</code> or Kubernetes manifests. Use <code>.env</code> / Kubernetes Secrets instead.</p>
+    </div>
+
+    <h3>CI/CD (GitHub Actions)</h3>
+    <p>The repository includes a GitHub Actions pipeline that builds, tests, and verifies all services on every push. Ensure all tests pass (<code>mvn verify</code> enforces ≥70% line coverage) before merging to main.</p>
+
+    <pre><span class="lang-tag">bash</span><code># Run tests locally before pushing
+cd services/control-plane && mvn verify
+cd services/oas-analyzer  && npm test
+cd portal                 && npm run lint</code></pre>
+  </section>
+
+</main>
+
+<script>
+  function show(id, link) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    if (link && link.classList.contains('nav-link')) link.classList.add('active');
+    window.scrollTo({ top: 0 });
+  }
+
+  function scrollTo(anchorId) {
+    setTimeout(() => {
+      const el = document.getElementById(anchorId);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  }
+</script>
+</body>
+</html>

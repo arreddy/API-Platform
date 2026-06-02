@@ -2,10 +2,12 @@ package com.apiplatform.controlplane.controller;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.apiplatform.controlplane.entity.User;
+import com.apiplatform.controlplane.exception.GlobalExceptionHandler;
 import com.apiplatform.controlplane.repository.UserRepository;
 import com.apiplatform.controlplane.service.JwtService;
 import com.apiplatform.controlplane.support.WithMockApiPrincipal;
@@ -13,25 +15,49 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
+import org.springframework.boot.http.converter.autoconfigure.HttpMessageConvertersAutoConfiguration;
+import org.springframework.boot.jackson.autoconfigure.JacksonAutoConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.validation.autoconfigure.ValidationAutoConfiguration;
+import org.springframework.boot.webmvc.autoconfigure.DispatcherServletAutoConfiguration;
+import org.springframework.boot.webmvc.autoconfigure.WebMvcAutoConfiguration;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
-@WebMvcTest(AuthController.class)
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.MOCK,
+    classes = {AuthController.class, GlobalExceptionHandler.class})
+@ImportAutoConfiguration({
+  DispatcherServletAutoConfiguration.class,
+  WebMvcAutoConfiguration.class,
+  JacksonAutoConfiguration.class,
+  HttpMessageConvertersAutoConfiguration.class,
+  ValidationAutoConfiguration.class
+})
 @Import(TestSecurityConfig.class)
 class AuthControllerTest {
 
-  @Autowired MockMvc mockMvc;
-  @Autowired ObjectMapper objectMapper;
+  @Autowired WebApplicationContext wac;
+  final ObjectMapper objectMapper = new ObjectMapper();
+  MockMvc mockMvc;
 
-  @MockBean UserRepository userRepository;
-  @MockBean JwtService jwtService;
-  @MockBean BCryptPasswordEncoder bcrypt;
+  @MockitoBean UserRepository userRepository;
+  @MockitoBean JwtService jwtService;
+  @MockitoBean BCryptPasswordEncoder bcrypt;
+
+  @BeforeEach
+  void setUp() {
+    mockMvc = MockMvcBuilders.webAppContextSetup(wac).apply(springSecurity()).build();
+  }
 
   private static final String TENANT = "00000000-0000-0000-0000-000000000001";
   private static final String USER_ID = UUID.randomUUID().toString();

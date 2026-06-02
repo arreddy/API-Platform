@@ -1,14 +1,14 @@
 package com.apiplatform.controlplane.entity;
 
 import com.apiplatform.controlplane.converter.UuidStringConverter;
-import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import lombok.*;
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "proxies")
@@ -50,17 +50,17 @@ public class Proxy {
   @Builder.Default
   private int version = 1;
 
-  @Type(JsonType.class)
+  @JdbcTypeCode(SqlTypes.JSON)
   @Column(columnDefinition = "jsonb", nullable = false)
   @Builder.Default
   private Map<String, Object> policies = Map.of();
 
-  @Type(JsonType.class)
+  @JdbcTypeCode(SqlTypes.JSON)
   @Column(columnDefinition = "jsonb", nullable = false)
   @Builder.Default
   private List<Map<String, Object>> routes = List.of();
 
-  @Type(JsonType.class)
+  @JdbcTypeCode(SqlTypes.JSON)
   @Column(columnDefinition = "jsonb", nullable = false)
   @Builder.Default
   private Map<String, String> headers = Map.of();
