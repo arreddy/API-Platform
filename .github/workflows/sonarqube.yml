@@ -64,7 +64,8 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         with:
           args: >
-            -Dsonar.projectKey=adirangareddypateel_API-Platform
+            -Dsonar.projectKey=arreddy_API-Platform
+            -Dsonar.organization=arreddy
             -Dsonar.sources=services/control-plane/src/main,services/gateway/src/main,services/mock-server/src/main,portal/src
             -Dsonar.tests=services/control-plane/src/test
             -Dsonar.java.binaries=services/control-plane/target/classes,services/gateway/target/classes,services/mock-server/target/classes
