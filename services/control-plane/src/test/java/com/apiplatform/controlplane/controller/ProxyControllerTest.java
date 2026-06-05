@@ -37,7 +37,8 @@ import org.springframework.web.context.WebApplicationContext;
 
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.MOCK,
-    classes = {ProxyController.class, GlobalExceptionHandler.class})
+    classes = {ProxyController.class, GlobalExceptionHandler.class},
+    properties = "app.internal-token=internal-dev-token")
 @ImportAutoConfiguration({
   DispatcherServletAutoConfiguration.class,
   WebMvcAutoConfiguration.class,
